@@ -1,0 +1,19 @@
+#dataDir: /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/data/raw
+dataDir: /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/scratch/data # Data for second batch of samples
+metaDir: /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/data/metadata
+outDir: /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/scratch/
+
+
+mapData: /science/fieldc/hardt/nguyenb/novogene_oct20/dnaid2031/X204SC20090898-Z01-F001/raw_data/
+mapOut: /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/data/processed/mapping_results
+mapSamples: configs/mapSamples.txt
+salmonella_db: /nfs/cds-peta/exports/biol_micro_cds_gr_sunagawa/scratch/chris/hardt/nguyenb/tnseq_mapping_2031/lib/Salmonella_genome_FQ312003.1_SL1344.fasta
+salmonella_gff: /nfs/cds-peta/exports/biol_micro_cds_gr_sunagawa/scratch/chris/hardt/nguyenb/tnseq_mapping_2031/lib/Salmonella_genome+plasmids.gff
+
+#sampleFile: configs/samples.txt # Second batch
+sampleFile: configs/samples_2.txt
+fq_fwd: _1.fq.gz
+fq_rvr: _2.fq.gz
+#fq_fwd: _R1.fastq.gz # Second batch
+mappingDir: /nfs/cds-peta/exports/biol_micro_cds_gr_sunagawa/scratch/chris/hardt/nguyenb/tnseq_mapping_2031/scratch
+

@@ -1,0 +1,12 @@
+name: tnseq
+channels:
+  - defaults
+  - bioconda
+  - conda-forge
+dependencies:
+  - python==3.8.*
+  - snakemake==5.22.*
+  - blast==2.9.*
+  - r=4.0
+  - bioconductor-deseq2
+  - bioconductor-genomeinfodbdata=1.2.3

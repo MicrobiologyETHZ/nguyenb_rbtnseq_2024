@@ -1,0 +1,4 @@
+dependencies:
+  - blast == 2.9
+  - python>=3.6
+  - bedtools

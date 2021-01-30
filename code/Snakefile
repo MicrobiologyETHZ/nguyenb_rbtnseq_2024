@@ -1,0 +1,177 @@
+from pathlib import Path
+import sys
+import pandas as pd
+
+
+DATADIR = Path(config['dataDir'])
+OUTDIR = Path(config['outDir'])
+with open(config['sampleFile'],'r') as f:
+    SAMPLES = f.read().split()
+
+rule test:
+    input: OUTDIR/'results/dnaid2023.done'
+
+
+rule testMap:
+    input: Path(config["mapOut"])/'library_13_1/library_13_1_barcode_map.txt'
+
+rule results:
+    input: [OUTDIR/f'results/{sample}.done' for sample in SAMPLES]
+
+rule tnseq:
+    input: [OUTDIR/f'counts/{sample}.done' for sample in SAMPLES]
+
+
+def getFastq1(wildcards): # todo generalize to other data structures
+    search_str = f'*{wildcards.sample}*{config["fq_fwd"]}'
+    try:
+        return str(list(Path(DATADIR).joinpath(wildcards.sample).rglob(search_str))[0])
+    except IndexError:
+        print(Path(DATADIR).joinpath(wildcards.sample))
+        print(search_str)
+        sys.exit(1)
+
+
+def getMapFastq1(wildcards):
+    mapDir = config['mapData']
+    search_str = f'*{wildcards.sample}*{config["fq_fwd"]}'
+    try:
+        return str(list(Path(mapDir).joinpath(wildcards.sample).rglob(search_str))[0])
+    except IndexError:
+        print(Path(mapDir).joinpath(wildcards.sample))
+        print(search_str)
+        sys.exit(1)
+
+def getMapFastq2(wildcards):
+    mapDir = config['mapData']
+    search_str = f'*{wildcards.sample}*{config["fq_rvr"]}'
+    try:
+        return str(list(Path(mapDir).joinpath(wildcards.sample).rglob(search_str))[0])
+    except IndexError:
+        print(Path(mapDir).joinpath(wildcards.sample))
+        print(search_str)
+        sys.exit(1)
+
+
+def get_codes():
+    metadata_file = Path(config['metaDir'])/'multiplex_codes.txt'
+    df = pd.read_table(metadata_file, usecols=[0,1], names=['seq', 'code'], dtype={'seq':str, 'code':str})
+    return  df.code.values
+
+rule demux:
+    input: getFastq1
+    output: touch(OUTDIR/'demux/{sample}.done'),
+            [str(OUTDIR/'demux//{sample}/{sample}') + f'_{code}.fasta' for code in get_codes()]
+    params:
+        mcodes = Path(config['metaDir'])/'multiplex_codes.txt',
+        outDir = lambda wildcards: OUTDIR/f'demux/{wildcards.sample}',
+        qoutfile = lambda wildcards: OUTDIR /f'logs/{wildcards.sample}.demux.qout',
+        qerrfile = lambda wildcards: OUTDIR /f'logs/{wildcards.sample}.demux.qerr',
+        scratch = 500,
+        mem = 8000,
+        time = 235
+    log:
+        log = OUTDIR /'logs/{sample}.demux.log'
+    threads:
+        32
+    shell: 'tnseq demux -bc {params.mcodes} '
+           '-r1 {input} -s 0 -rc -o {params.outDir} &> {log.log};'
+           'for i in {params.outDir}/*.fasta; do mv $i  {params.outDir}/{wildcards.sample}_$(basename -- "$i"); done'
+
+
+def get_mapping_file(wildcards):
+    metadata_file = Path(config['metaDir'])/f'{wildcards.sample}_metadata.txt'
+    df = pd.read_table(metadata_file, usecols=[0,1], names=['code', 'library'], dtype={'code':str, 'library':str})
+    wc = wildcards.code#.split('_')[1]
+    library = df.loc[df.code == wc, 'library'].values[0]
+    return Path(config['mappingDir'])/f'{library}/barcode_map.txt'
+
+
+
+rule map_one:
+    input: r1 = getMapFastq1,
+        r2 = getMapFastq2
+    output: Path(config["mapOut"])/'{sample}/{sample}_barcode_map.txt'
+    params:
+        qoutfile = lambda wildcards: OUTDIR /f'logs/mapping/{wildcards.sample}.qout',
+        qerrfile = lambda wildcards: OUTDIR /f'logs/mapping/{wildcards.sample}.qerr',
+        lib = config['salmonella_db'],
+        gff = config['salmonella_gff'],
+        scratch = 500,
+        mem = 8000,
+        time = 235
+    log:
+        log = OUTDIR /'logs/mapping/{sample}.log'
+    threads:
+        32
+    conda:
+        "envs/map.yaml"
+    shell: 'tnseq map -r1 {input.r1} -r2 {input.r1} '
+           '-o {output} -db {params.lib} -g {params.gff} -c 1 -n 32 -f &> {log.log}'
+
+
+
+
+"""
+
+blastn -task blastn -db /nfs/cds-peta/exports/biol_micro_cds_gr_sunagawa/scratch/chris/hardt/nguyenb/tnseq_mapping_2031/lib -out /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/data/processed/mapping_results/library_13_1/ tnseq_host_reads.blastn -query /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/data/processed/mapping_results/library_13_1/tnseq_host_reads.fasta -outfmt "6 qseqid sseqid pident length qstart qend sstart send evalue bitscore qseq sstrand" -num_threads 32
+"""
+
+
+
+
+rule quantify_one:
+    input: OUTDIR/'demux/{sample}/{sample}_{code}.fasta'
+    output: OUTDIR/'counts/{sample}/{sample}_{code}.count.txt'
+    params:
+        barcode_map = get_mapping_file,
+        qoutfile = lambda wildcards: OUTDIR /f'logs/{wildcards.sample}_{wildcards.code}.quant.qout',
+        qerrfile = lambda wildcards: OUTDIR /f'logs/{wildcards.sample}_{wildcards.code}.quant.qerr',
+        scratch = 500,
+        mem = 8000,
+        time = 235
+    log:
+        log = OUTDIR /'logs/{sample}_{code}.quant.log'
+    threads:
+        8
+    shell: 'tnseq quantify -r {input} -o {output}  -b {params.barcode_map} &> {log.log}'
+
+
+def get_samples(wildcards):
+    metadata_file = Path(config['metaDir'])/f'{wildcards.sample}_metadata.txt'
+    df = pd.read_table(metadata_file, usecols=[0,1], names=['code', 'library'], dtype={'code':str, 'library':str})
+    return [str(OUTDIR/f'counts/{wildcards.sample}/{wildcards.sample}') + f'_{code}.count.txt' for code in df.code.values]
+
+
+rule quantify:
+    input: get_samples
+    output: touch(OUTDIR/'counts/{sample}.done')
+
+
+rule analyze:
+    input: OUTDIR/'counts/{sample}.done'
+    output: touch(OUTDIR/'results/{sample}.done')
+    params:
+        metadataFile = lambda wildcards: Path(config['metaDir'])/f'{wildcards.sample}_metadata.txt',
+        controlsFile = Path(config['metaDir'])/'controls.txt',
+        countsDir = lambda wildcards: OUTDIR/f'counts/{wildcards.sample}',
+        mapDir = config['mappingDir'],
+        outDir = lambda wildcards: OUTDIR/f'results/{wildcards.sample}',
+        sample = '{sample}_',
+        qoutfile = lambda wildcards: OUTDIR /f'logs/{wildcards.sample}.analysis.qout',
+        qerrfile = lambda wildcards: OUTDIR /f'logs/{wildcards.sample}.analysis.qerr',
+        scratch = 500,
+        mem = 8000,
+        time = 235
+    log: log = OUTDIR /'logs/{sample}.analysis.log'
+    threads:
+        8
+    conda:
+        "envs/analysis.yaml"
+    shell: 'mkdir -p {params.outDir}; '
+           'Rscript analysis.r {params.metadataFile} {params.controlsFile} '
+           '{params.countsDir} {params.mapDir} '
+           '{params.outDir} {params.sample} &> {log.log}'
+
+
+#todo test creating env from environment.yaml

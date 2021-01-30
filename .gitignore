@@ -51,6 +51,7 @@ Manifest.toml
 
 .ipynb_checkpoints
 */.ipynb_checkpoints/*
+*.ipynb
 
 # Remove previous ipynb_checkpoints
 #   git rm -r .ipynb_checkpoints/
@@ -421,3 +422,4 @@ buildNumber.properties
 # added by Anna for general purposes :)
 
 *data*
+!*/tests/dnaid2023_metadata.txt
