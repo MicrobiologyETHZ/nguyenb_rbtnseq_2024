@@ -1,0 +1,70 @@
+---
+title: "R Notebook"
+author: ansintsova
+date: 28/05/2021
+output: html_notebook
+---
+
+The [R plugin](https://www.jetbrains.com/help/pycharm/r-plugin-support.html) for IntelliJ-based IDEs provides
+handy capabilities to work with the [R Markdown](https://www.jetbrains.com/help/pycharm/r-markdown.html) files.
+To [add](https://www.jetbrains.com/help/pycharm/r-markdown.html#add-code-chunk) a new R chunk,
+position the caret at any line or the code chunk, then click "+".
+
+The code chunk appears:
+```{r}
+```
+
+Type any R code in the chunk, for example:
+```{r}
+install.packages('heatmaply')
+```
+```{r}
+library('heatmaply')
+```
+```{r}
+x  <- as.matrix(datasets::mtcars)
+rc <- colorspace::rainbow_hcl(nrow(x))
+rc[0:2]
+
+```
+```{r}
+x[, 8:9]
+```
+
+```{r}
+heatmaply(
+  x,
+  seriate = "mean",
+  #RowSideColors = rc,
+  row_side_palette = rc[0:2],
+  row_side_colors = x[, 8:9]
+)
+```
+```{r}
+df <- read.csv("/Users/ansintsova/git_repos/nguyenb_tnseq/data/13_04_results/results/30_14_lib10_vsd.csv", row.names = 1)
+sdf <-read.csv("/Users/ansintsova/git_repos/nguyenb_tnseq/data/13_04_results/results/30_04_lib10_sdf.csv", row.names = 1)
+```
+```{r}
+sdf
+```
+```{r}
+fig <- heatmaply_cor(
+  cor(df),
+  limits = c(0, 1),
+row_side_colors = sdf[, c(2,3,6),
+                      ],
+  fontsize_row = 5,
+  fontsize_col = 5
+
+)
+
+fig <- fig %>% layout(autosize = F, width = 1200, height = 1000)
+fig
+```
+```{r}
+library(htmlwidgets)
+htmlwidgets::saveWidget(fig, selfcontained =FALSE,  "/Users/ansintsova/Documents/SushiLab/31-05-2021-Lab-Meeting/lib10_correlation.html", libdir = "/Users/ansintsova/Documents/SushiLab/31-05-2021-Lab-Meeting")
+```
+```{r}
+install.packages('pandoc')
+```

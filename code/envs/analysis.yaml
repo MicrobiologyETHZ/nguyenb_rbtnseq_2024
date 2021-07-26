@@ -1,8 +1,0 @@
-channels:
-  - defaults
-  - bioconda
-  - conda-forge
-dependencies:
-  - r=4.0
-  - bioconductor-deseq2
-  - bioconductor-genomeinfodbdata=1.2.3
