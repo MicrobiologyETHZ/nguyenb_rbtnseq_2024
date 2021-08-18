@@ -1,7 +1,22 @@
-# TNSeq Analysis Pipeline
+# Salmonella SL1344 TNSeq Analysis Pipeline
 
+1. Set up small snakemake pipeline to use for data analysis with [tnseq2 package](https://github.com/MicrobiologyETHZ/nccr_tnseq2).
 
-## General Steps for Quantifying Barcodes
+### Mapping of transposon libraries to the SL1344 genomes
+
+-  tnseq2 command for mapping:
+
+```
+tnseq2 maplib ...
+```
+- Conda environment used for mapping is in `envs/map.yaml`
+- Snakemake command to run this on samples specified in `samples.txt`
+
+```
+snakemake --configfile ...
+```
+
+### General Steps for Quantifying Barcodes
 
 1. Demultiplex
 2. Quantify

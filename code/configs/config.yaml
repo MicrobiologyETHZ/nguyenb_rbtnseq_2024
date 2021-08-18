@@ -1,6 +1,0 @@
-dataDir: /nfs/home/ansintsova/test_data/raw
-metaDir: tests
-outDir: /nfs/home/ansintsova/test_data/processed
-sampleFile: tests/test_samples.txt
-fq_fwd: _1.fq.gz
-mappingDir: /nfs/cds-shini.ethz.ch/exports/biol_micro_cds_gr_sunagawa/scratch/chris/hardt/nguyenb/tnseq_mapping_2031/scratch

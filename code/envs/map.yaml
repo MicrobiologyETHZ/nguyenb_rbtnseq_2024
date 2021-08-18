@@ -1,7 +1,0 @@
-dependencies:
-  - pandas
-  - numpy
-  - biopython == 1.77
-  - blast == 2.9.0
-  - bedtools == 2.29
-  - click

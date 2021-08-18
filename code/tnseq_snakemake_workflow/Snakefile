@@ -34,7 +34,7 @@ def getFastq2(wildcards):
 
 # MAP
 rule map:
-    input: [OUTDIR/f'maps/{sample}/{sample}.barcode_map.csv'for sample in samples]
+    input: [OUTDIR/f'maps/{sample}/{sample}.barcode_map.annotated.csv' for sample in samples]
 
 
 rule sample_mapping:
@@ -42,7 +42,7 @@ rule sample_mapping:
             fq1 = getFastq1,
             fq2 = getFastq2,
         output:
-            map = OUTDIR/'maps/{sample}/{sample}.barcode_map.csv',
+            map = OUTDIR/'maps/{sample}/{sample}.barcode_map.annotated.csv',
         params:
             sample = '{sample}',
             outdir = lambda wildcards: OUTDIR/f'maps/{wildcards.sample}',
@@ -56,13 +56,13 @@ rule sample_mapping:
             mem = 8800,
             time = 1400
         log:
-            log = OUTDIR/'logs/maps/{sample}.maps.log',
+            log = OUTDIR/'logs/{sample}.mapping.log',
         conda:
             'envs/map.yaml'
         threads:
             32
         shell:
-            "python {params.tnpath}/main.py maplib -f {input.fq1} -r {input.fq2} -o {params.outdir} -tn {params.transposon} "
+            "tnseq2 maplib -f {input.fq1} -r {input.fq2} -o {params.outdir} -tn {params.transposon} "
             "-g {params.genome} -n {params.sample} -a {params.gff} -t 4 &> {log.log} "
 
 
