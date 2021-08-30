@@ -50,9 +50,12 @@ def calculate_correlation(exp_df, control_file, for_each='sampleID', how='log', 
 
 
 def filter_inoculum(exp_df, filter_below=0, sample_id='sampleID'):
-    filt_df = (exp_df.copy()
-               .drop(['ShortName', 'locus_tag'], axis=1)
-               .drop_duplicates()
+    filt_df = exp_df.copy()
+    if 'ShortName' in filt_df.columns:
+        filt_df = filt_df.drop(['ShortName'], axis=1)
+    if 'locus_tag' in filt_df.columns:
+        filt_df = filt_df.drop(['locus_tag'], axis=1)
+    filt_df = (filt_df.drop_duplicates()
                .pivot(index='barcode', columns=sample_id, values='cnt'))
 
     filt_df = filt_df.fillna(0)

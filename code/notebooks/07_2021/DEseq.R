@@ -37,7 +37,7 @@ calculate_fitness <- function(sdf, edf, prefix){
         dds <- DESeq2::DESeqDataSetFromMatrix(countData=edf, colData=sdf, design=~experiment + day)
     }
     dds <- DESeq2::DESeq(dds)
-    vsd <- DESeq2::vst(dds, blind=TRUE)
+    vsd <- DESeq2::vst(dds, blind=TRUE, nsub=min(1000, nrow(dds)))
     fitness <- list()
     for(day in levels(dds$day)[-1]){
         #fitness[[day]] <- as.data.frame(DESeq2::lfcShrink(dds, coef=paste0("day_", day, "_vs_d0"), type="apeglm"))
