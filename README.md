@@ -4,6 +4,21 @@
 
 ### Mapping of transposon libraries to the SL1344 genomes
 
+1. Pre-process Illumina short read data using standard workflow
+
+    - Create `tnseq-mapping_sample.csv`
+    - Preprocess using standard pipeline
+    
+```bash
+cd code/tnseq_snakemake_workflow
+python preprocessing/scripts/fastq_dir_to_samplesheet.py -c configs/18-08-21-mapping-config.yaml
+
+```
+    
+ 
+    
+    
+    
 -  tnseq2 command for mapping:
 
 ```

@@ -4,177 +4,198 @@ import pandas as pd
 
 OUTDIR = Path(config['outDir'])
 DATADIR = Path(config['dataDir'])
-sample_file = Path(config['sampleFile'])
-tnseq_path = Path(config['tnseqPath'])
 
 
-def get_samples(sample_file):
-    subsamples = []
-    if Path(sample_file).is_file():
-        subsamples = set(Path(sample_file).read_text().splitlines())
-    if len(subsamples) == 0:
-        exit(1)
-    return subsamples
+from snakemake.utils import min_version
+min_version("6.0")
 
-samples = get_samples(sample_file)
+module preprocess:
+    snakefile: "preprocessing/Snakefile" # give this as github link to Snakefile
+    config: config
 
-def getFastq1(wildcards):
-    search_str = f'*{config["fwd"]}'
-    try:
-        return str(list(Path(DATADIR).joinpath(wildcards.sample).rglob(search_str))[0])
-    except IndexError:
-        print(Path(DATADIR).joinpath(wildcards.sample))
-        print(search_str)
-        sys.exit(1)
-
-def getFastq2(wildcards):
-    search_str = f'*{config["rvr"]}'
-    return str(list(Path(DATADIR).joinpath(wildcards.sample).rglob(search_str))[0])
+use rule * from preprocess as preprocess_*
 
 
-# MAP
-rule map:
-    input: [OUTDIR/f'maps/{sample}/{sample}.barcode_map.annotated.csv' for sample in samples]
+# use rule preprocess from preprocess as preprocess_preprocess with:
+#
+#     params:
+#         qoutfile = lambda wildcards: OUTDIR /f'logs/{wildcards.sample}.preprocess.qout',
+#         qerrfile = lambda wildcards: OUTDIR /f'logs/{wildcards.sample}.preprocess.qerr',
+#         scratch = 500,
+#         mem = 8000,
+#         time = 235
 
-
-rule sample_mapping:
-        input:
-            fq1 = getFastq1,
-            fq2 = getFastq2,
-        output:
-            map = OUTDIR/'maps/{sample}/{sample}.barcode_map.annotated.csv',
-        params:
-            sample = '{sample}',
-            outdir = lambda wildcards: OUTDIR/f'maps/{wildcards.sample}',
-            transposon = config['tn'],
-            genome = config['genome'],
-            gff = config['gff'],
-            tnpath = tnseq_path,
-            qerrfile = lambda wildcards: OUTDIR/f'logs/maps/{wildcards.sample}.maps.qerr',
-            qoutfile = lambda wildcards: OUTDIR/f'logs/maps/{wildcards.sample}.maps.qout',
-            scratch = 6000,
-            mem = 8800,
-            time = 1400
-        log:
-            log = OUTDIR/'logs/{sample}.mapping.log',
-        conda:
-            'envs/map.yaml'
-        threads:
-            32
-        shell:
-            "tnseq2 maplib -f {input.fq1} -r {input.fq2} -o {params.outdir} -tn {params.transposon} "
-            "-g {params.genome} -n {params.sample} -a {params.gff} -t 4 &> {log.log} "
-
-
-#DEMUX
-rule demux_all:
-    input: [OUTDIR/f'demux/{sample}/{sample}.demux.done' for sample in samples]
-
-rule demux_sample:
-        input:
-            fq1 = getFastq1,
-        output:
-            demux_marker = touch(OUTDIR/'demux/{sample}/{sample}.demux.done'),
-        params:
-            name = '{sample}',
-            multiplex_codes = config['multiplex_codes'],
-            tnpath = tnseq_path,
-            outdir = lambda wildcards: OUTDIR/f'demux/{wildcards.sample}',
-            transposon = config['tn'],
-            qerrfile = lambda wildcards: OUTDIR/f'logs/maps/{wildcards.sample}.demux.qerr',
-            qoutfile = lambda wildcards: OUTDIR/f'logs/maps/{wildcards.sample}.demux.qout',
-            scratch = 6000,
-            mem = 8800,
-            time = 1400
-        log:
-            log = OUTDIR/'logs/demux/{sample}.demux.log',
-        conda:
-            'envs/map.yaml'
-        threads:
-            8
-        shell:
-            "python {params.tnpath}/main.py demux -i {input.fq1} -d {params.multiplex_codes} -o {params.outdir} "
-            "-n {params.name} -tn {params.transposon} --rc  &> {log.log} "
-
-
-# QUANTIFY
-
-def get_mapping_file(wildcards):
-    metadata_file = Path(config['metaDir'])/f'{wildcards.sample}_metadata.txt'
-    df = pd.read_table(metadata_file, usecols=[0,1], names=['code', 'library'], dtype={'code':str, 'library':str})
-    wc = wildcards.code#.split('_')[1]
-    library = df.loc[df.code == wc, 'library'].values[0]
-    return Path(config['mappingDir'])/f'{library}/{library}.barcode_map.annotated.csv'
-
-
-def get_codes(wildcards):
-    metadata_file = Path(config['metaDir'])/f'{wildcards.sample}_metadata.txt'
-    df = pd.read_table(metadata_file, usecols=[0,1], names=['code', 'library'], dtype={'code':str, 'library':str})
-    return [str(OUTDIR/f'counts/{wildcards.sample}/{wildcards.sample}') + f'_{code}_counts_mapped.csv' for code in df.code.values]
-
-
-rule quantify_one:
-    input: OUTDIR/'demux/{sample}/{sample}_{code}.fasta'
-    output: OUTDIR/'counts/{sample}/{sample}_{code}_counts_mapped.csv'
-    params:
-        barcode_map = get_mapping_file,
-        outdir = lambda wildcards: OUTDIR/f'counts/{wildcards.sample}',
-        tnpath = tnseq_path,
-        qoutfile = lambda wildcards: OUTDIR /f'logs/counts/{wildcards.sample}_{wildcards.code}.quant.qout',
-        qerrfile = lambda wildcards: OUTDIR /f'logs/counts/{wildcards.sample}_{wildcards.code}.quant.qerr',
-        prefix = lambda wildcards: f'{wildcards.sample}_{wildcards.code}',
-        scratch = 500,
-        mem = 8000,
-        time = 235
-    log:
-        log = OUTDIR /'logs/counts/{sample}_{code}.quant.log'
-    conda:
-        'envs/map.yaml'
-    threads:
-        8
-    shell: 'python {params.tnpath}/main.py count -f {input} '
-           '-m {params.barcode_map} -o {params.outdir} -n {params.prefix} &> {log.log}'
-
-
-rule quantify_all:
-    input: get_codes
-    output: touch(OUTDIR/'counts/{sample}.done')
-
-
-
-
-rule quantify:
-    input: [OUTDIR/f'counts/{sample}.done' for sample in samples]#[OUTDIR/f'counts/{sample}/{sample}_counts.csv' for sample in ['dnaid2018']]
-
-
-rule merge_one:
-    input: OUTDIR/'counts/{sample}.done'
-    output: OUTDIR/'counts/{sample}/merged_counts.csv',
-        OUTDIR/'counts/{sample}/merged_controls.csv',
-    params:
-        count_dir = OUTDIR/f'counts',
-        meta_file = lambda wildcards: Path(config['metaDir'])/f'{wildcards.sample}_metadata.edited.txt',
-        control_file = config['controlFile'],
-        tnpath = tnseq_path,
-        qoutfile = lambda wildcards: OUTDIR /f'logs/{wildcards.sample}.merge_counts.qout',
-        qerrfile = lambda wildcards: OUTDIR /f'logs/{wildcards.sample}.merge_counts.qerr',
-        sample = lambda wildcards: f'{wildcards.sample}',
-        scratch = 500,
-        mem = 8000,
-        time = 235
-    log:
-        log = OUTDIR /'logs/counts/{sample}.merge_counts.log'
-    conda:
-        'envs/map.yaml'
-    threads:
-        8
-    shell:
-        'python {params.tnpath}/main.py merge -d {params.count_dir}/{params.sample} -m {params.meta_file} '
-        '-b {params.control_file} -n {params.sample} '
-
-
-rule merge:
-    input: [OUTDIR/f'counts/{sample}/merged_counts.csv' for sample in samples]
-
-
+#
+#
+#
+#
+# def get_samples(sample_file):
+#     subsamples = []
+#     if Path(sample_file).is_file():
+#         subsamples = set(Path(sample_file).read_text().splitlines())
+#     if len(subsamples) == 0:
+#         exit(1)
+#     return subsamples
+#
+# samples = get_samples(sample_file)
+#
+# def getFastq1(wildcards):
+#     search_str = f'*{config["fwd"]}'
+#     try:
+#         return str(list(Path(DATADIR).joinpath(wildcards.sample).rglob(search_str))[0])
+#     except IndexError:
+#         print(Path(DATADIR).joinpath(wildcards.sample))
+#         print(search_str)
+#         sys.exit(1)
+#
+# def getFastq2(wildcards):
+#     search_str = f'*{config["rvr"]}'
+#     return str(list(Path(DATADIR).joinpath(wildcards.sample).rglob(search_str))[0])
+#
+#
+# # MAP
+# rule map:
+#     input: [OUTDIR/f'maps/{sample}/{sample}.barcode_map.annotated.csv' for sample in samples]
+#
+#
+# rule sample_mapping:
+#         input:
+#             fq1 = getFastq1,
+#             fq2 = getFastq2,
+#         output:
+#             map = OUTDIR/'maps/{sample}/{sample}.barcode_map.annotated.csv',
+#         params:
+#             sample = '{sample}',
+#             outdir = lambda wildcards: OUTDIR/f'maps/{wildcards.sample}',
+#             transposon = config['tn'],
+#             genome = config['genome'],
+#             gff = config['gff'],
+#             tnpath = tnseq_path,
+#             qerrfile = lambda wildcards: OUTDIR/f'logs/maps/{wildcards.sample}.maps.qerr',
+#             qoutfile = lambda wildcards: OUTDIR/f'logs/maps/{wildcards.sample}.maps.qout',
+#             scratch = 6000,
+#             mem = 8800,
+#             time = 1400
+#         log:
+#             log = OUTDIR/'logs/{sample}.mapping.log',
+#         conda:
+#             'envs/map.yaml'
+#         threads:
+#             32
+#         shell:
+#             "tnseq2 maplib -f {input.fq1} -r {input.fq2} -o {params.outdir} -tn {params.transposon} "
+#             "-g {params.genome} -n {params.sample} -a {params.gff} -t 4 &> {log.log} "
+#
+#
+# #DEMUX
+# rule demux_all:
+#     input: [OUTDIR/f'demux/{sample}/{sample}.demux.done' for sample in samples]
+#
+# rule demux_sample:
+#         input:
+#             fq1 = getFastq1,
+#         output:
+#             demux_marker = touch(OUTDIR/'demux/{sample}/{sample}.demux.done'),
+#         params:
+#             name = '{sample}',
+#             multiplex_codes = config['multiplex_codes'],
+#             tnpath = tnseq_path,
+#             outdir = lambda wildcards: OUTDIR/f'demux/{wildcards.sample}',
+#             transposon = config['tn'],
+#             qerrfile = lambda wildcards: OUTDIR/f'logs/maps/{wildcards.sample}.demux.qerr',
+#             qoutfile = lambda wildcards: OUTDIR/f'logs/maps/{wildcards.sample}.demux.qout',
+#             scratch = 6000,
+#             mem = 8800,
+#             time = 1400
+#         log:
+#             log = OUTDIR/'logs/demux/{sample}.demux.log',
+#         conda:
+#             'envs/map.yaml'
+#         threads:
+#             8
+#         shell:
+#             "python {params.tnpath}/main.py demux -i {input.fq1} -d {params.multiplex_codes} -o {params.outdir} "
+#             "-n {params.name} -tn {params.transposon} --rc  &> {log.log} "
+#
+#
+# # QUANTIFY
+#
+# def get_mapping_file(wildcards):
+#     metadata_file = Path(config['metaDir'])/f'{wildcards.sample}_metadata.txt'
+#     df = pd.read_table(metadata_file, usecols=[0,1], names=['code', 'library'], dtype={'code':str, 'library':str})
+#     wc = wildcards.code#.split('_')[1]
+#     library = df.loc[df.code == wc, 'library'].values[0]
+#     return Path(config['mappingDir'])/f'{library}/{library}.barcode_map.annotated.csv'
+#
+#
+# def get_codes(wildcards):
+#     metadata_file = Path(config['metaDir'])/f'{wildcards.sample}_metadata.txt'
+#     df = pd.read_table(metadata_file, usecols=[0,1], names=['code', 'library'], dtype={'code':str, 'library':str})
+#     return [str(OUTDIR/f'counts/{wildcards.sample}/{wildcards.sample}') + f'_{code}_counts_mapped.csv' for code in df.code.values]
+#
+#
+# rule quantify_one:
+#     input: OUTDIR/'demux/{sample}/{sample}_{code}.fasta'
+#     output: OUTDIR/'counts/{sample}/{sample}_{code}_counts_mapped.csv'
+#     params:
+#         barcode_map = get_mapping_file,
+#         outdir = lambda wildcards: OUTDIR/f'counts/{wildcards.sample}',
+#         tnpath = tnseq_path,
+#         qoutfile = lambda wildcards: OUTDIR /f'logs/counts/{wildcards.sample}_{wildcards.code}.quant.qout',
+#         qerrfile = lambda wildcards: OUTDIR /f'logs/counts/{wildcards.sample}_{wildcards.code}.quant.qerr',
+#         prefix = lambda wildcards: f'{wildcards.sample}_{wildcards.code}',
+#         scratch = 500,
+#         mem = 8000,
+#         time = 235
+#     log:
+#         log = OUTDIR /'logs/counts/{sample}_{code}.quant.log'
+#     conda:
+#         'envs/map.yaml'
+#     threads:
+#         8
+#     shell: 'python {params.tnpath}/main.py count -f {input} '
+#            '-m {params.barcode_map} -o {params.outdir} -n {params.prefix} &> {log.log}'
+#
+#
+# rule quantify_all:
+#     input: get_codes
+#     output: touch(OUTDIR/'counts/{sample}.done')
+#
+#
+#
+#
+# rule quantify:
+#     input: [OUTDIR/f'counts/{sample}.done' for sample in samples]#[OUTDIR/f'counts/{sample}/{sample}_counts.csv' for sample in ['dnaid2018']]
+#
+#
+# rule merge_one:
+#     input: OUTDIR/'counts/{sample}.done'
+#     output: OUTDIR/'counts/{sample}/merged_counts.csv',
+#         OUTDIR/'counts/{sample}/merged_controls.csv',
+#     params:
+#         count_dir = OUTDIR/f'counts',
+#         meta_file = lambda wildcards: Path(config['metaDir'])/f'{wildcards.sample}_metadata.edited.txt',
+#         control_file = config['controlFile'],
+#         tnpath = tnseq_path,
+#         qoutfile = lambda wildcards: OUTDIR /f'logs/{wildcards.sample}.merge_counts.qout',
+#         qerrfile = lambda wildcards: OUTDIR /f'logs/{wildcards.sample}.merge_counts.qerr',
+#         sample = lambda wildcards: f'{wildcards.sample}',
+#         scratch = 500,
+#         mem = 8000,
+#         time = 235
+#     log:
+#         log = OUTDIR /'logs/counts/{sample}.merge_counts.log'
+#     conda:
+#         'envs/map.yaml'
+#     threads:
+#         8
+#     shell:
+#         'python {params.tnpath}/main.py merge -d {params.count_dir}/{params.sample} -m {params.meta_file} '
+#         '-b {params.control_file} -n {params.sample} '
+#
+#
+# rule merge:
+#     input: [OUTDIR/f'counts/{sample}/merged_counts.csv' for sample in samples]
+#
+#
 
