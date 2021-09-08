@@ -11,9 +11,27 @@
     
 ```bash
 cd code/tnseq_snakemake_workflow
+# Creates sample sheet for all the libraries to be mapped
 python preprocessing/scripts/fastq_dir_to_samplesheet.py -c configs/18-08-21-mapping-config.yaml
+# Preprocess (still troubleshooting snakemake pipeline, issues with qout/qerr because of import of workflow)
+snakemake --use-conda -k --cluster "qsub -S /bin/bash -V -cwd -o preprocess.qoutfile -e preprocess.q
+errfile -pe smp 4 -l h_vmem=8000M" --configfile /nfs/nas22/fs2202/biol_micro_bioinf_nccr
+/hardt/nguyenb/tnseq/code/tnseq_snakemake_workflow/configs/18-08-21-mapping-config.yaml
+-p -j 1 --max-jobs-per-second 1 preprocess_preprocess
 
 ```
+
+2. Map libraries to reference genomes
+
+```bash
+snakemake --use-conda -k --cluster "DIR=\$(dirname {params.qoutfile}); mkdir -p \"\${{DIR}}\"; qsub -S /bin/bash -V -cwd -o {params.qoutfile} -e {params.qerrfile} -pe smp {threads} -l h_vmem={params.mem}M" --configfile /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/code/tnseq_snakemake_workflow/configs/18-08-21-mapping-config.yaml -p -j 10 --max-jobs-per-second 1 map
+
+```
+
+
+3. (Demultiplex) and Quantify barcodes 
+
+
     
  
     

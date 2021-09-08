@@ -4,7 +4,8 @@ import pandas as pd
 
 OUTDIR = Path(config['outDir'])
 DATADIR = Path(config['dataDir'])
-
+sampleInfo = pd.read_csv(config['samples'])
+SAMPLES = sampleInfo['sample'].unique()
 
 from snakemake.utils import min_version
 min_version("6.0")
@@ -16,77 +17,59 @@ module preprocess:
 use rule * from preprocess as preprocess_*
 
 
-# use rule preprocess from preprocess as preprocess_preprocess with:
-#
-#     params:
-#         qoutfile = lambda wildcards: OUTDIR /f'logs/{wildcards.sample}.preprocess.qout',
-#         qerrfile = lambda wildcards: OUTDIR /f'logs/{wildcards.sample}.preprocess.qerr',
-#         scratch = 500,
-#         mem = 8000,
-#         time = 235
+# MAP
+rule map:
+    input: [OUTDIR/f'maps/{sample}/{sample}.barcode_map.annotated.csv' for sample in SAMPLES]
 
-#
-#
-#
-#
-# def get_samples(sample_file):
-#     subsamples = []
-#     if Path(sample_file).is_file():
-#         subsamples = set(Path(sample_file).read_text().splitlines())
-#     if len(subsamples) == 0:
-#         exit(1)
-#     return subsamples
-#
-# samples = get_samples(sample_file)
-#
-# def getFastq1(wildcards):
-#     search_str = f'*{config["fwd"]}'
-#     try:
-#         return str(list(Path(DATADIR).joinpath(wildcards.sample).rglob(search_str))[0])
-#     except IndexError:
-#         print(Path(DATADIR).joinpath(wildcards.sample))
-#         print(search_str)
-#         sys.exit(1)
-#
-# def getFastq2(wildcards):
-#     search_str = f'*{config["rvr"]}'
-#     return str(list(Path(DATADIR).joinpath(wildcards.sample).rglob(search_str))[0])
-#
-#
-# # MAP
-# rule map:
-#     input: [OUTDIR/f'maps/{sample}/{sample}.barcode_map.annotated.csv' for sample in samples]
-#
-#
-# rule sample_mapping:
-#         input:
-#             fq1 = getFastq1,
-#             fq2 = getFastq2,
-#         output:
-#             map = OUTDIR/'maps/{sample}/{sample}.barcode_map.annotated.csv',
-#         params:
-#             sample = '{sample}',
-#             outdir = lambda wildcards: OUTDIR/f'maps/{wildcards.sample}',
-#             transposon = config['tn'],
-#             genome = config['genome'],
-#             gff = config['gff'],
-#             tnpath = tnseq_path,
-#             qerrfile = lambda wildcards: OUTDIR/f'logs/maps/{wildcards.sample}.maps.qerr',
-#             qoutfile = lambda wildcards: OUTDIR/f'logs/maps/{wildcards.sample}.maps.qout',
-#             scratch = 6000,
-#             mem = 8800,
-#             time = 1400
-#         log:
-#             log = OUTDIR/'logs/{sample}.mapping.log',
-#         conda:
-#             'envs/map.yaml'
-#         threads:
-#             32
-#         shell:
-#             "tnseq2 maplib -f {input.fq1} -r {input.fq2} -o {params.outdir} -tn {params.transposon} "
-#             "-g {params.genome} -n {params.sample} -a {params.gff} -t 4 &> {log.log} "
-#
-#
+rule sample_mapping:
+        input:
+            fq1 = OUTDIR/"clean_reads/{sample}/{sample}.1.fq.gz",
+            fq2 = OUTDIR/"clean_reads/{sample}/{sample}.2.fq.gz",
+        output:
+            map = OUTDIR/'maps/{sample}/{sample}.barcode_map.annotated.csv',
+        params:
+            sample = '{sample}',
+            outdir = lambda wildcards: OUTDIR/f'maps/{wildcards.sample}',
+            transposon = config['tn'],
+            genome = config['genome'],
+            gff = config['gff'],
+            qerrfile = lambda wildcards: OUTDIR/f'logs/{wildcards.sample}.maps.qerr',
+            qoutfile = lambda wildcards: OUTDIR/f'logs/{wildcards.sample}.maps.qout',
+            scratch = 6000,
+            mem = 8800,
+            time = 1400
+        log:
+            log = OUTDIR/'logs/{sample}.mapps.log',
+        conda:
+            'envs/map.yaml'
+        threads:
+            32
+        shell:
+            "tnseq2 maplib -f {input.fq1} -r {input.fq2} -o {params.outdir} -tn {params.transposon} "
+            "-l 100 -g {params.genome} -n {params.sample} -a {params.gff} -t 4 &> {log.log} "
+
+
+rule kegg_annotate:
+    input: config["cds_faa"]
+    output: OUTDIR/f"{Path(config['cds_faa']).stem}-annotations.tsv"
+    params:
+        prefix = OUTDIR/f"{Path(config['cds_faa']).stem}",
+        kegg_dmd = config['kegg_dmd'],
+        kegg_ko = config['kegg_ko'],
+        qerrfile = lambda wildcards: OUTDIR/f'logs/{Path(config["cds_faa"]).stem}.kegg.qerr',
+        qoutfile = lambda wildcards: OUTDIR/f'logs/{Path(config["cds_faa"]).stem}.kegg.qout',
+        scratch = 6000,
+        mem = 8800,
+        time = 1400
+    log: OUTDIR/f'logs/{Path(config["cds_faa"]).stem}.kegg.log'
+    conda:
+        "envs/kegg.yaml"
+    threads: 32
+    shell:
+        "python scripts/annotate_kegg.py -q {input} -o {params.prefix} -t {threads} -m more-sensitive"
+        " -d {params.kegg_dmd} -k {params.kegg_ko} "
+
+
 # #DEMUX
 # rule demux_all:
 #     input: [OUTDIR/f'demux/{sample}/{sample}.demux.done' for sample in samples]

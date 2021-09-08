@@ -1,0 +1,46 @@
+---
+title: "R Notebook"
+author: ansintsova
+date: 06.09.21
+output: html_notebook
+---
+
+```{r}
+BiocManager::install("fgsea")
+```
+```{r}
+install.packages("data.table")        # install it
+library(data.table)
+```
+Type any R code in the chunk, for example:
+```{r}
+library(fgsea)
+#library(data.table)
+library(ggplot2)
+```
+
+```{r}
+data(examplePathways) # list of pathways
+data(exampleRanks) # vector of gene ranks
+set.seed(42)
+fgseaRes <- fgsea(pathways = examplePathways,
+                  stats    = exampleRanks,
+                  minSize  = 15,
+                  eps      = 0.0,
+                  maxSize  = 500)
+
+```
+```{r}
+rank_df <- read.csv('/data/08_21/ranked_mean.csv', )
+ranks <- rank_df$rank_mean
+names(ranks) <- rank_df$gene
+ranks
+```
+
+```{r}
+pathways <- scan("/data/test.gmt", what="", sep="\n")
+pathways <- strsplit(pathways, "\t")
+names(pathways) <- sapply(pathways, `[[`, 2)
+pathways <- lapply(pathways, `[`, c(-1, -2))
+pathways
+```
