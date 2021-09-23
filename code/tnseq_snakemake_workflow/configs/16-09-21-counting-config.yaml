@@ -1,20 +1,21 @@
 # Counting
 projectName: tnseq-counting
 dataDir: /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/scratch/data
+metaDir: /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/data/metadata
 outDir: /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/scratch/08_21/
 samples: /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/scratch/08_21/tnseq-counting_sample.csv
 
 ## General settings
 fq_fwd: _1.fq.gz
 fq_rvr: _2.fq.gz
-sanitise_name: false
+sanitise_name: true
 name_delimiter: _
-name_index: 3
+name_index: 1
 merge_replicates: false # if set to false, 'sample' in sample.csv has to be a unique sample identifier
 tn: GTGTATAAGAGACAG:17:13:before
 
 #Preprocessing
-qc: yes
+qc: SE
 mink: 11
 trimq: 14 # 37
 mapq: 20
@@ -29,8 +30,7 @@ gff: /nfs/cds-peta/exports/biol_micro_cds_gr_sunagawa/scratch/Projects_NCCR/ref/
 
 map_filter: 100
 
-# DeMUX
-csamples: /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/scratch/08_21/tnseq-mapping_sample.csv
+multiplex_codes: /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/data/metadata/multiplex_codes.txt
 
 
 # KEGG

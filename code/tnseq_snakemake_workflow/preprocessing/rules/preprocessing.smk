@@ -63,7 +63,7 @@ def getFastq2(wildcards):
     return sampleInfo_merged[sampleInfo_merged['sample'] == wildcards.sample].fastq_2
 
 
-if config['qc']:
+if config['qc'] == 'yes':
 
     rule qc:
         input:
@@ -125,6 +125,60 @@ if config['qc']:
             "stats={output.qc_stats} statscolumns=5 "
             "trimq={params.trimq}  2>> {log.log};"
 
+elif config['qc'] == 'SE':
+    rule qc:
+        input:
+            fq1 = getFastq1,
+            adapters = Path(config['adapters']),
+            phix = Path(config['phix'])
+        output:
+            fq1_clean = OUTDIR /'clean_reads/{sample}/{sample}.1.fq.gz',
+            adapter_matched = OUTDIR /'clean_reads/{sample}/removedreads/{sample}.adapter.matched.fq.gz',
+            adapter_stats = OUTDIR /'clean_reads/{sample}/{sample}.adapter.stats',
+            phix_matched = OUTDIR /'clean_reads/{sample}/removedreads/{sample}.phix.matched.fq.gz',
+            phix_stats = OUTDIR /'clean_reads/{sample}/{sample}.phix.stats',
+            qc_failed = OUTDIR /'clean_reads/{sample}/removedreads/{sample}.qc.failed.fq.gz',
+            qc_stats = OUTDIR /'clean_reads/{sample}/{sample}.qc.stats',
+            marker = touch(OUTDIR /'clean_reads/{sample}/{sample}.qc.done')
+        params:
+            trimq = config['trimq'],
+            maq = config['mapq'],
+            minlen = config['minlen'],
+            qoutfile = lambda wildcards: OUTDIR /f'logs/qc/{wildcards.sample}.qc.qout',
+            qerrfile = lambda wildcards: OUTDIR /f'logs/qc/{wildcards.sample}.qc.qerr',
+            scratch = 500,
+            mem = 8000,
+            time = 235
+        conda:
+            "../envs/preprocessing.yaml"
+        benchmark:
+            OUTDIR /'clean_reads/{sample}/{sample}.qc.benchmark'
+        log:
+            log = OUTDIR /'logs/qc/{sample}.qc.log'
+        threads:
+            8
+        shell:
+            "echo {params.qoutfile}; "
+            "bbduk.sh -Xmx1G pigz=t bgzip=f usejni=t "
+            "in={input.fq1} "
+            "out=stdout.fq outm={output.adapter_matched} "
+            "refstats={output.adapter_stats} statscolumns=5 "
+            "overwrite=t ref={input.adapters} "
+            "ktrim=r k=23 mink=11 hdist=1  2>> {log.log} | "
+            "bbduk.sh -Xmx1G usejni=t pigz=t bgzip=f "
+            "interleaved=true overwrite=t "
+            "in=stdin.fq out=stdout.fq "
+            "outm={output.phix_matched} "
+            "ref={input.phix} k=31 hdist=1 "
+            "refstats={output.phix_stats} statscolumns=5 2>> {log.log}| "
+            "bbduk.sh -Xmx1G pigz=t bgzip=f usejni=t  "
+            "overwrite=t interleaved=true "
+            "in=stdin.fq fastawrap=10000 "
+            "out1={output.fq1_clean} "
+            "outm={output.qc_failed} "
+            "minlength={params.minlen} qtrim=rl maq={params.maq} maxns=1  "
+            "stats={output.qc_stats} statscolumns=5 "
+            "trimq={params.trimq}  2>> {log.log};"
 else:
     rule qc:
         input:

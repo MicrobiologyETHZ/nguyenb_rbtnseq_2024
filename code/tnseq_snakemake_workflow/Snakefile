@@ -54,9 +54,14 @@ rule sample_mapping:
 
 # Go back to getFastq1, to get sample names...
 
+
 #DEMUX
+
+
 rule demux_all:
     input: [OUTDIR/f'demux/{sample}/{sample}.demux.done' for sample in SAMPLES]
+    #input: [OUTDIR/f'demux/20160518_RUN270_o2459_DNAID1315/20160518_RUN270_o2459_DNAID1315.demux.done']
+
 
 rule demux_sample:
         input:
@@ -83,111 +88,56 @@ rule demux_sample:
             "tnseq2 demux -i {input.fq1} -d {params.multiplex_codes} -o {params.outdir} "
             "-n {params.name} -tn {params.transposon} --rc  &> {log.log} "
 
-#
-# # Count
-# rule count:
-#     input: [OUTDIR/f'counts/{csample}/{csample}.counts_mapped.csv' for csample in CSAMPLES]
-#
-# rule sample_mapping:
-#         input:
-#             fasta = OUTDIR/"clean_reads/{sample}/{sample}.1.fq.gz",
-#             fq2 = OUTDIR/"clean_reads/{sample}/{sample}.2.fq.gz",
-#         output:
-#             map = OUTDIR/'maps/{sample}/{sample}.barcode_map.annotated.csv',
-#         params:
-#             sample = '{sample}',
-#             outdir = lambda wildcards: OUTDIR/f'maps/{wildcards.sample}',
-#             transposon = config['tn'],
-#             genome = config['genome'],
-#             gff = config['gff'],
-#             qerrfile = lambda wildcards: OUTDIR/f'logs/{wildcards.sample}.maps.qerr',
-#             qoutfile = lambda wildcards: OUTDIR/f'logs/{wildcards.sample}.maps.qout',
-#             scratch = 6000,
-#             mem = 8800,
-#             time = 1400,
-#             l = config["map_filter"]
-#         log:
-#             log = OUTDIR/'logs/{sample}.mapps.log',
-#         conda:
-#             'envs/map.yaml'
-#         threads:
-#             32
-#         shell:
-#             "tnseq2 maplib -f {input.fq1} -r {input.fq2} -o {params.outdir} -tn {params.transposon} "
-#             "-l {params.l} -g {params.genome} -n {params.sample} -a {params.gff} -t 4 &> {log.log} "
-# rule kegg_annotate:
-#     input: config["cds_faa"]
-#     output: OUTDIR/f"{Path(config['cds_faa']).stem}-annotations.tsv"
-#     params:
-#         prefix = OUTDIR/f"{Path(config['cds_faa']).stem}",
-#         kegg_dmd = config['kegg_dmd'],
-#         kegg_ko = config['kegg_ko'],
-#         qerrfile = lambda wildcards: OUTDIR/f'logs/{Path(config["cds_faa"]).stem}.kegg.qerr',
-#         qoutfile = lambda wildcards: OUTDIR/f'logs/{Path(config["cds_faa"]).stem}.kegg.qout',
-#         scratch = 6000,
-#         mem = 8800,
-#         time = 1400
-#     log: OUTDIR/f'logs/{Path(config["cds_faa"]).stem}.kegg.log'
-#     conda:
-#         "envs/kegg.yaml"
-#     threads: 32
-#     shell:
-#         "python scripts/annotate_kegg.py -q {input} -o {params.prefix} -t {threads} -m more-sensitive"
-#         " -d {params.kegg_dmd} -k {params.kegg_ko} "
+
+# QUANTIFY
+
+def get_mapping_file(wildcards):
+    metadata_file = Path(config['metaDir'])/f'{wildcards.sample}_metadata.edited.txt'
+    df = pd.read_table(metadata_file, usecols=[0,1], names=['code', 'library'], dtype={'code':str, 'library':str})
+    wc = wildcards.code#.split('_')[1]
+    library = df.loc[df.code == wc, 'library'].values[0]
+    return Path(config['mappingDir'])/f'{library}/{library}.barcode_map.annotated.csv'
+
 #
 
+def get_codes(wildcards):
+    metadata_file = Path(config['metaDir'])/f'{wildcards.sample}_metadata.txt'
+    df = pd.read_table(metadata_file, usecols=[0,1], names=['code', 'library'], dtype={'code':str, 'library':str})
+    return [str(OUTDIR/f'counts/{wildcards.sample}/{wildcards.sample}') + f'_{code}_counts_mapped.csv' for code in df.code.values]
+
+#
+rule quantify_one:
+    input: OUTDIR/'demux/{sample}/{sample}_{code}.fasta'
+    output: OUTDIR/'counts/{sample}/{sample}_{code}_counts_mapped.csv'
+    params:
+        barcode_map = get_mapping_file,
+        outdir = lambda wildcards: OUTDIR/f'counts/{wildcards.sample}',
+        qoutfile = lambda wildcards: OUTDIR /f'logs/counts/{wildcards.sample}_{wildcards.code}.quant.qout',
+        qerrfile = lambda wildcards: OUTDIR /f'logs/counts/{wildcards.sample}_{wildcards.code}.quant.qerr',
+        prefix = lambda wildcards: f'{wildcards.sample}_{wildcards.code}',
+        scratch = 500,
+        mem = 8000,
+        time = 235
+    log:
+        log = OUTDIR /'logs/counts/{sample}_{code}.quant.log'
+    conda:
+        'envs/map.yaml'
+    threads:
+        8
+    shell: 'tnseq2 count -f {input} -m {params.barcode_map} '
+           ' -o {params.outdir} -n {params.prefix} &> {log.log}'
+
+#
+rule quantify_all:
+    input: get_codes
+    output: touch(OUTDIR/'counts/{sample}.done')
 
 #
 #
-# # QUANTIFY
 #
-# def get_mapping_file(wildcards):
-#     metadata_file = Path(config['metaDir'])/f'{wildcards.sample}_metadata.txt'
-#     df = pd.read_table(metadata_file, usecols=[0,1], names=['code', 'library'], dtype={'code':str, 'library':str})
-#     wc = wildcards.code#.split('_')[1]
-#     library = df.loc[df.code == wc, 'library'].values[0]
-#     return Path(config['mappingDir'])/f'{library}/{library}.barcode_map.annotated.csv'
-#
-#
-# def get_codes(wildcards):
-#     metadata_file = Path(config['metaDir'])/f'{wildcards.sample}_metadata.txt'
-#     df = pd.read_table(metadata_file, usecols=[0,1], names=['code', 'library'], dtype={'code':str, 'library':str})
-#     return [str(OUTDIR/f'counts/{wildcards.sample}/{wildcards.sample}') + f'_{code}_counts_mapped.csv' for code in df.code.values]
-#
-#
-# rule quantify_one:
-#     input: OUTDIR/'demux/{sample}/{sample}_{code}.fasta'
-#     output: OUTDIR/'counts/{sample}/{sample}_{code}_counts_mapped.csv'
-#     params:
-#         barcode_map = get_mapping_file,
-#         outdir = lambda wildcards: OUTDIR/f'counts/{wildcards.sample}',
-#         tnpath = tnseq_path,
-#         qoutfile = lambda wildcards: OUTDIR /f'logs/counts/{wildcards.sample}_{wildcards.code}.quant.qout',
-#         qerrfile = lambda wildcards: OUTDIR /f'logs/counts/{wildcards.sample}_{wildcards.code}.quant.qerr',
-#         prefix = lambda wildcards: f'{wildcards.sample}_{wildcards.code}',
-#         scratch = 500,
-#         mem = 8000,
-#         time = 235
-#     log:
-#         log = OUTDIR /'logs/counts/{sample}_{code}.quant.log'
-#     conda:
-#         'envs/map.yaml'
-#     threads:
-#         8
-#     shell: 'python {params.tnpath}/main.py count -f {input} '
-#            '-m {params.barcode_map} -o {params.outdir} -n {params.prefix} &> {log.log}'
-#
-#
-# rule quantify_all:
-#     input: get_codes
-#     output: touch(OUTDIR/'counts/{sample}.done')
-#
-#
-#
-#
-# rule quantify:
-#     input: [OUTDIR/f'counts/{sample}.done' for sample in samples]#[OUTDIR/f'counts/{sample}/{sample}_counts.csv' for sample in ['dnaid2018']]
-#
+rule quantify:
+    input: [OUTDIR/f'counts/{sample}.done' for sample in SAMPLES]#[OUTDIR/f'counts/{sample}/{sample}_counts.csv' for sample in ['dnaid2018']]
+
 #
 # rule merge_one:
 #     input: OUTDIR/'counts/{sample}.done'
