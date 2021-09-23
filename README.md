@@ -29,6 +29,7 @@ snakemake --use-conda -k --cluster "DIR=\$(dirname {params.qoutfile}); mkdir -p 
 ```
 
 
+
 3. (Demultiplex) and Quantify barcodes 
 
 

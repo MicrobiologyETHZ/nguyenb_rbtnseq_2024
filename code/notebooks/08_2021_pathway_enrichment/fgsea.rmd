@@ -9,7 +9,7 @@ output: html_notebook
 BiocManager::install("fgsea")
 ```
 ```{r}
-install.packages("data.table")        # install it
+#install.packages("data.table")        # install it
 library(data.table)
 ```
 Type any R code in the chunk, for example:
@@ -30,17 +30,109 @@ fgseaRes <- fgsea(pathways = examplePathways,
                   maxSize  = 500)
 
 ```
+
 ```{r}
-rank_df <- read.csv('/data/08_21/ranked_mean.csv', )
-ranks <- rank_df$rank_mean
-names(ranks) <- rank_df$gene
-ranks
+fgseaRes
 ```
 
 ```{r}
-pathways <- scan("/data/test.gmt", what="", sep="\n")
+
+rank_df <- read.csv('/Users/ansintsova/git_repos/nguyenb_tnseq/code/notebooks/08_2021_pathway_enrichment/day1_ranked_mean.csv', )
+day1_ranks <- rank_df$rank_mean
+names(day1_ranks) <- rank_df$locus_tag
+
+
+```
+
+```{r}
+rank_df <- read.csv('/Users/ansintsova/git_repos/nguyenb_tnseq/code/notebooks/08_2021_pathway_enrichment/day2_ranked_mean.csv', )
+day2_ranks <- rank_df$rank_mean
+names(day2_ranks) <- rank_df$locus_tag
+```
+
+```{r}
+rank_df <- read.csv('/Users/ansintsova/git_repos/nguyenb_tnseq/code/notebooks/08_2021_pathway_enrichment/day3_ranked_mean.csv', )
+day3_ranks <- rank_df$rank_mean
+names(day3_ranks) <- rank_df$locus_tag
+```
+
+
+```{r}
+rank_df <- read.csv('/Users/ansintsova/git_repos/nguyenb_tnseq/code/notebooks/08_2021_pathway_enrichment/day4_ranked_mean.csv', )
+day4_ranks <- rank_df$rank_mean
+names(day4_ranks) <- rank_df$locus_tag
+```
+
+
+```{r}
+
+#rank_df <- read.csv('/Users/ansintsova/git_repos/nguyenb_tnseq/code/notebooks/08_2021_pathway_enrichment/ranked_median.csv', )
+#ranks <- rank_df$rank_median
+#names(ranks) <- rank_df$locus_tag
+#
+
+```
+
+
+
+
+
+
+```{r}
+pathways <- scan("/Users/ansintsova/git_repos/nguyenb_tnseq/code/notebooks/08_2021_pathway_enrichment/15-09-sey.gmt", what="", sep="\n")
 pathways <- strsplit(pathways, "\t")
+pathways <- lapply(pathways, function(z){ z[!is.na(z) & z != ""]})
 names(pathways) <- sapply(pathways, `[[`, 2)
-pathways <- lapply(pathways, `[`, c(-1, -2))
-pathways
+pathways <- lapply(pathways, `[`, c(-1,-2,-3))
+
+
+```
+
+```{r}
+fgseaRes1 <- fgsea(pathways = pathways,
+                  stats    = day1_ranks,
+                  minSize  = 5,
+                  maxSize  = 500)
+```
+```{r}
+topPathwaysDown <- fgseaRes1[ES < 0][head(order(pval), n=10), pathway]
+plotGseaTable(pathways[topPathwaysDown], day1_ranks, fgseaRes1,
+              gseaParam=0.5)
+```
+```{r}
+fgseaRes2 <- fgsea(pathways = pathways,
+                  stats    = day2_ranks,
+                  minSize  = 5,
+                  maxSize  = 500)
+```
+```{r}
+topPathwaysDown <- fgseaRes2[ES < 0][head(order(pval), n=10), pathway]
+plotGseaTable(pathways[topPathwaysDown], day2_ranks, fgseaRes2,
+              gseaParam=0.5)
+```
+
+```{r}
+fgseaRes3 <- fgsea(pathways = pathways,
+                  stats    = day3_ranks,
+                  minSize  = 5,
+                  maxSize  = 500)
+```
+
+```{r}
+topPathwaysDown <- fgseaRes3[ES < 0][head(order(pval), n=10), pathway]
+plotGseaTable(pathways[topPathwaysDown], day3_ranks, fgseaRes3,
+              gseaParam=0.5)
+```
+
+```{r}
+fgseaRes4 <- fgsea(pathways = pathways,
+                  stats    = day4_ranks,
+                  minSize  = 5,
+                  maxSize  = 500)
+```
+
+```{r}
+topPathwaysDown <- fgseaRes4[ES < 0][head(order(pval), n=10), pathway]
+plotGseaTable(pathways[topPathwaysDown], day4_ranks, fgseaRes4,
+              gseaParam=0.5)
 ```
