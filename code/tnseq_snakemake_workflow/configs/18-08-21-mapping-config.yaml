@@ -27,6 +27,9 @@ fastqc: no
 genome: /nfs/cds-peta/exports/biol_micro_cds_gr_sunagawa/scratch/Projects_NCCR/ref/SL1344/ncbi-genomes-2021-08-25/GCA_000210855.2_ASM21085v2_genomic.fna
 gff: /nfs/cds-peta/exports/biol_micro_cds_gr_sunagawa/scratch/Projects_NCCR/ref/SL1344/ncbi-genomes-2021-08-25/GCA_000210855.2_ASM21085v2_genomic.gff
 
+map_filter: 100
+
+
 # KEGG
 
 kegg_dmd: /nfs/nas22/fs2202/biol_micro_sunagawa/Projects/PAN/GENERAL_METAGT_ANALYSIS_PAN/data/resources/soft/kegg_annotation/kegg_db/kegg/kegg_for_prokka-with_ko.dmnd

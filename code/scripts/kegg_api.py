@@ -141,7 +141,6 @@ class GeneSet(object):
                 # Check if in the inverted dict the key exists
                 if pathway not in self.pathways:
                     # If not create a new list
-
                     self.pathways[pathway] = [name]
                 else:
                     self.pathways[pathway].append(name)
