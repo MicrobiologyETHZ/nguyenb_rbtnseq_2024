@@ -11,14 +11,9 @@ BiocManager::install("fgsea")
 ```{r}
 #install.packages("data.table")        # install it
 library(data.table)
-```
-Type any R code in the chunk, for example:
-```{r}
 library(fgsea)
-#library(data.table)
 library(ggplot2)
 ```
-
 ```{r}
 data(examplePathways) # list of pathways
 data(exampleRanks) # vector of gene ranks
@@ -31,18 +26,101 @@ fgseaRes <- fgsea(pathways = examplePathways,
 
 ```
 
+
+Take the final results,
+1. find median z-score, rank by z-score
+2. rank by p.adj, take median
+
 ```{r}
-fgseaRes
+df <-read_csv("data/27_07_results_and_figures/final_results/26-07-final-results.csv" )
+
+```
+
+
+```{r}
+ranked <- df %>% mutate(dir_change = ifelse(`z-score`<0, -1,1), rank=-1*log10(zscore_padj)*dir_change)
+```
+
+```{r}
+ranked <- df %>% group_by(gene, day) %>% summarise(rankMed = median(`z-score`, na.rm=TRUE))
+```
+
+```{r}
+get_day_ranks <- function(ranked.df, doi){
+    day.ranks.df <- ranked.df %>% filter(day == doi) %>% filter( nchar(gene) < 10)
+    day.ranks <- day.ranks.df$rankMed
+    names(day.ranks) <- day.ranks.df$gene
+    day.ranks
+}
 ```
 
 ```{r}
 
-rank_df <- read.csv('/Users/ansintsova/git_repos/nguyenb_tnseq/code/notebooks/08_2021_pathway_enrichment/day1_ranked_mean.csv', )
+day1.ranks <- get_day_ranks(ranked, 'd1')
+day2.ranks <- get_day_ranks(ranked, 'd2')
+day3.ranks <- get_day_ranks(ranked, 'd3')
+day4.ranks <- get_day_ranks(ranked, 'd4')
+
+```
+
+```{r}
+pathways <- scan("/data/10_21_pathway_enrichment/07-10-ko.gmt", what="", sep="\n")
+pathways <- strsplit(pathways, "\t")
+pathways <- lapply(pathways, function(z){ z[!is.na(z) & z != ""]})
+names(pathways) <- sapply(pathways, `[[`, 1)
+pathways <- lapply(pathways, `[`, c(-1))
+
+```
+
+```{r}
+#length(day1.ranks)
+#pathways
+
+```
+
+
+
+```{r}
+fgseaRes.day1 <- fgsea(pathways = pathways,
+                  stats    = day1.ranks,
+                  minSize  = 5,
+                  maxSize  = 500)
+
+fgseaRes.day2 <- fgsea(pathways = pathways,
+                  stats    = day2.ranks,
+                  minSize  = 5,
+                  maxSize  = 500)
+fgseaRes.day3 <- fgsea(pathways = pathways,
+                  stats    = day3.ranks,
+                  minSize  = 5,
+                  maxSize  = 500)
+fgseaRes.day4 <- fgsea(pathways = pathways,
+                  stats    = day4.ranks,
+                  minSize  = 5,
+                  maxSize  = 500)
+```
+
+```{r}
+fwrite(fgseaRes.day1, "../../../data/10_21_pathway_enrichment/GSEA/fgseaRes.day1.csv")
+fwrite(fgseaRes.day2, "../../../data/10_21_pathway_enrichment/GSEA/fgseaRes.day2.csv")
+fwrite(fgseaRes.day3, "../../../data/10_21_pathway_enrichment/GSEA/fgseaRes.day3.csv")
+fwrite(fgseaRes.day4, "../../../data/10_21_pathway_enrichment/GSEA/fgseaRes.day4.csv")
+```
+
+
+
+
+```{r}
+
+rank_df <- read.csv('/Users/ansintsova/git_repos/nguyenb_tnseq/data/08_21/ranked_mean.csv', )
 day1_ranks <- rank_df$rank_mean
 names(day1_ranks) <- rank_df$locus_tag
 
 
 ```
+
+
+
 
 ```{r}
 rank_df <- read.csv('/Users/ansintsova/git_repos/nguyenb_tnseq/code/notebooks/08_2021_pathway_enrichment/day2_ranked_mean.csv', )

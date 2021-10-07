@@ -4,6 +4,8 @@ dataDir: /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/scratch/da
 metaDir: /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/data/metadata
 outDir: /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/scratch/08_21/
 samples: /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/scratch/08_21/tnseq-counting_sample.csv
+mappingDir: /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/scratch/08_21/maps
+
 
 ## General settings
 fq_fwd: _1.fq.gz
