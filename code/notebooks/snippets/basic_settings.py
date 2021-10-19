@@ -20,5 +20,4 @@ plt.rcParams['legend.fontsize'] = 14
 plt.rcParams['text.usetex'] = False  # True activates latex output in fonts!
 plt.rcParams['font.family'] = "serif"
 plt.rcParams['font.serif'] = "cm"
-plt.rcParams['text.latex.preamble'] = "\usepackage{subdepth}, \usepackage{type1cm}"
 pd.set_option('display.float_format', lambda x: '{:,.2f}'.format(x))
