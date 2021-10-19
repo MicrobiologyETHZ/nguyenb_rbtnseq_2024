@@ -139,34 +139,33 @@ rule quantify:
     input: [OUTDIR/f'counts/{sample}.done' for sample in SAMPLES]#[OUTDIR/f'counts/{sample}/{sample}_counts.csv' for sample in ['dnaid2018']]
 
 #
-# rule merge_one:
-#     input: OUTDIR/'counts/{sample}.done'
-#     output: OUTDIR/'counts/{sample}/merged_counts.csv',
-#         OUTDIR/'counts/{sample}/merged_controls.csv',
-#     params:
-#         count_dir = OUTDIR/f'counts',
-#         meta_file = lambda wildcards: Path(config['metaDir'])/f'{wildcards.sample}_metadata.edited.txt',
-#         control_file = config['controlFile'],
-#         tnpath = tnseq_path,
-#         qoutfile = lambda wildcards: OUTDIR /f'logs/{wildcards.sample}.merge_counts.qout',
-#         qerrfile = lambda wildcards: OUTDIR /f'logs/{wildcards.sample}.merge_counts.qerr',
-#         sample = lambda wildcards: f'{wildcards.sample}',
-#         scratch = 500,
-#         mem = 8000,
-#         time = 235
-#     log:
-#         log = OUTDIR /'logs/counts/{sample}.merge_counts.log'
-#     conda:
-#         'envs/map.yaml'
-#     threads:
-#         8
-#     shell:
-#         'python {params.tnpath}/main.py merge -d {params.count_dir}/{params.sample} -m {params.meta_file} '
-#         '-b {params.control_file} -n {params.sample} '
-#
-#
-# rule merge:
-#     input: [OUTDIR/f'counts/{sample}/merged_counts.csv' for sample in samples]
-#
+rule merge_one:
+    input: OUTDIR/'counts/{sample}.done'
+    output: OUTDIR/'counts/{sample}/merged_counts.csv',
+        OUTDIR/'counts/{sample}/merged_controls.csv',
+    params:
+        count_dir = OUTDIR/f'counts',
+        meta_file = lambda wildcards: Path(config['metaDir'])/f'{wildcards.sample}_metadata.edited.txt',
+        control_file = config['controlFile'],
+        qoutfile = lambda wildcards: OUTDIR /f'logs/{wildcards.sample}.merge_counts.qout',
+        qerrfile = lambda wildcards: OUTDIR /f'logs/{wildcards.sample}.merge_counts.qerr',
+        sample = lambda wildcards: f'{wildcards.sample}',
+        scratch = 500,
+        mem = 8000,
+        time = 235
+    log:
+        log = OUTDIR /'logs/counts/{sample}.merge_counts.log'
+    conda:
+        'envs/map.yaml'
+    threads:
+        8
+    shell:
+        'tnseq2 merge -d {params.count_dir}/{params.sample} -m {params.meta_file} '
+        '-b {params.control_file} -n {params.sample} '
+
+
+rule merge:
+    input: [OUTDIR/f'counts/{sample}/merged_counts.csv' for sample in SAMPLES]
+
 #
 
