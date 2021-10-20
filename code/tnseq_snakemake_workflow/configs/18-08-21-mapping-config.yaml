@@ -29,7 +29,8 @@ gff: /nfs/cds-peta/exports/biol_micro_cds_gr_sunagawa/scratch/Projects_NCCR/ref/
 
 map_filter: 100
 
-
+multiplex_codes: /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/data/metadata/multiplex_codes.txt
+controlFile: /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/data/metadata/controls.txt
 # KEGG
 
 kegg_dmd: /nfs/nas22/fs2202/biol_micro_sunagawa/Projects/PAN/GENERAL_METAGT_ANALYSIS_PAN/data/resources/soft/kegg_annotation/kegg_db/kegg/kegg_for_prokka-with_ko.dmnd
