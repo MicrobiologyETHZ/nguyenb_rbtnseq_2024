@@ -1,7 +1,7 @@
 ---
 title: "R Notebook"
 author: ansintsova
-date: 30.09.21
+date: 09.12.21
 output: html_notebook
 ---
 
@@ -13,7 +13,7 @@ output: html_notebook
 
 
 ```{r}
-library(knitr)
+#library(knitr)
 library(tidyverse)
 library(ggplot2)
 library(patchwork)
@@ -22,21 +22,22 @@ library(patchwork)
 Load annotated results.
 
 ```{r}
-setwd("code/notebooks/10_21_GO_heatmaps")
-results <- read.csv("../../../data/10_21_pathway_enrichment/final_results_annotated.csv", row.names=1)
+#setwd("code/notebooks/10_21_GO_heatmaps")
+results <- read.csv("../../../data/12_21_results/06-11-2021-final-results-annotated.csv", row.names=1)
 results %>% head()
 ```
+
 
 1. Set up a function to get specific pathway/module
 2. Set up a function to make a graph from that df
 
 
 ```{r}
-draw_path<- function(df, term, term_col, title, limits){
+draw_path<- function(df, term, term_col, title){
    path.df <- df %>% filter(grepl(term, !! sym(term_col)))
-   path.df <- path.df %>% arrange(desc(start)) %>% mutate(gene=factor(gene, levels=unique(gene))) %>% group_by(gene, day) %>% summarise(medCI = log2(median(CI, na.rm=TRUE)), hits=ifelse(sum(ifelse(zscore_padj<0.05, 1,0)) > 0, 'black','white'), medZscore = median(z.score, na.rm=TRUE))
-  minval = floor(path.df$medZscore %>% min())
-  maxval = ceiling(path.df$medZscore %>% max())
+   path.df <- path.df %>% arrange(desc(start)) %>% mutate(gene=factor(gene, levels=unique(gene))) %>% group_by(gene, day) %>% summarise(medCI = log2(median(ci_nov, na.rm=TRUE)), hits=ifelse(sum(ifelse(padj_nov<0.05, 1,0)) > 0, 'black','white'), medZscore = median(zscore_nov, na.rm=TRUE))
+  minval <- floor(path.df$medZscore %>% min())
+  maxval <- ceiling(path.df$medZscore %>% max())
   g <- path.df %>% ggplot(aes(day, gene)) +
   geom_point(aes (color=medZscore), shape=15, size=5)+
     geom_point(shape = 0,alpha=1, size = 6,colour = path.df$hits)+
@@ -51,12 +52,14 @@ draw_path<- function(df, term, term_col, title, limits){
 
 
 ```{r}
-glyc <- draw_path(results, 'ko00010', 'KEGG_Pathway', 'Glycolysis', c(-18,5))
-tca <- draw_path(results, 'ko00020', 'KEGG_Pathway', 'TCA', c(-7,1))
-anresp <- draw_path(results, 'GO:0009061', 'GOs', 'Anaerobic Respiration', c(-7,3))
-aeresp <- draw_path(results, 'GO:0009060', 'GOs', 'Aerobic Respiration', c(-4,3))
-ppp <- draw_path(results, 'GO:0006098', 'GOs', 'Pentose Phosphate', c(-2,1))
+glyc <- draw_path(results, 'ko00010', 'KEGG_Pathway', 'Glycolysis')
+tca <- draw_path(results, 'ko00020', 'KEGG_Pathway', 'TCA')
+anresp <- draw_path(results, 'GO:0009061', 'GOs', 'Anaerobic Respiration')
+aeresp <- draw_path(results, 'GO:0009060', 'GOs', 'Aerobic Respiration')
+ppp <- draw_path(results, 'GO:0006098', 'GOs', 'Pentose Phosphate')
 ```
+
+
 
 ```{r}
 tcap = tca/ppp
@@ -67,26 +70,26 @@ metabolism <- glyc|(anresp/aeresp)|tcap
 ```
 
 ```{r}
-ggsave("../../../data/10_21_pathway_enrichment/heatmaps/metabolism.png", metabolism, dpi=300, width = 12, height=12)
+ggsave("../../../data/12_21_results/metabolism.png", metabolism, dpi=300, width = 12, height=12)
 ```
 
 
 ```{r}
-bioAA <- draw_path(results, 'ko01230', 'KEGG_Pathway', 'Biosynthesis of Amino Acids', c(-10,1))
-pur <- draw_path(results, 'ko00230', 'KEGG_Pathway', 'Purine Metabolism', c(-16,2))
-pyr <- draw_path(results, 'ko00240', 'KEGG_Pathway', 'Pyrimidine Metabolism', c(-10,4))
-faa <- draw_path(results, 'ko01212', 'KEGG_Pathway', 'Fatty Acids Metabolism', c(-4,3))
+bioAA <- draw_path(results, 'ko01230', 'KEGG_Pathway', 'Biosynthesis of Amino Acids')
+pur <- draw_path(results, 'ko00230', 'KEGG_Pathway', 'Purine Metabolism')
+pyr <- draw_path(results, 'ko00240', 'KEGG_Pathway', 'Pyrimidine Metabolism')
+faa <- draw_path(results, 'ko01212', 'KEGG_Pathway', 'Fatty Acids Metabolism')
 
 
 ```
 - Plot stat sig kegg pathways
 ```{r}
-lps <- draw_path(results, 'ko00540', 'KEGG_Pathway', 'Lipopolysaccharide biosynthesis', c(-10,1))
-ko01130 <-draw_path(results, 'ko01130', 'KEGG_Pathway', 'Biosynthesis of Antibiotics', c(-10,1))
+lps <- draw_path(results, 'ko00540', 'KEGG_Pathway', 'Lipopolysaccharide biosynthesis')
+ko01130 <-draw_path(results, 'ko01130', 'KEGG_Pathway', 'Biosynthesis of Antibiotics')
 #ko00230
-ko00520 <- draw_path(results, 'ko00520', 'KEGG_Pathway', 'Amino sugar and nucleotide sugar metabolism', c(-10,1))
-ko01110 <- draw_path(results, 'ko01110', 'KEGG_Pathway', 'Biosynthesis of secondary metabolites', c(-10,1))
-ko00521 <- draw_path(results, 'ko00521', 'KEGG_Pathway', 'Streptomycin biosynthesis', c(-10,1))
+ko00520 <- draw_path(results, 'ko00520', 'KEGG_Pathway', 'Amino sugar and nucleotide sugar metabolism')
+ko01110 <- draw_path(results, 'ko01110', 'KEGG_Pathway', 'Biosynthesis of secondary metabolites')
+ko00521 <- draw_path(results, 'ko00521', 'KEGG_Pathway', 'Streptomycin biosynthesis')
 
 #ko00521
 #ko00020 # day 4
@@ -99,11 +102,11 @@ lps_related <- (lps/ko00521)|ko00520
 
 ```
 ```{r}
-ggsave("../../../data/10_21_pathway_enrichment/heatmaps/lps.png", lps_related, dpi=300, width = 12, height=12)
+ggsave("../../../data/12_21_results/lps.png", lps_related, dpi=300, width = 12, height=12)
 ```
 ```{r}
 path.df <- results %>% filter(grepl('ko01230', !! sym('KEGG_Pathway')))
-path.df <- path.df %>% arrange(desc(start)) %>% mutate(gene=factor(gene, levels=unique(gene))) %>% group_by(gene, day) %>% summarise(medCI = log2(median(CI, na.rm=TRUE)), hits=ifelse(sum(ifelse(zscore_padj<0.05, 1,0)) > 0, 'black','white'), medZscore = median(z.score, na.rm=TRUE))
+path.df <- path.df %>% arrange(desc(start)) %>% mutate(gene=factor(gene, levels=unique(gene))) %>% group_by(gene, day) %>% summarise(medCI = log2(median(ci_nov, na.rm=TRUE)), hits=ifelse(sum(ifelse(padj_nov<0.05, 1,0)) > 0, 'black','white'), medZscore = median(zscore_nov, na.rm=TRUE))
 
 
 
@@ -140,7 +143,7 @@ baa2 <- baa2.df %>% ggplot(aes(day, gene)) +
 vits <- c('thiM', 'thiC', 'bioB', 'bioF', 'bioDb', 'ybiV(2)', 'ybiV(1)', 'pdxAa', 'pdxB')
 path.df <- results %>% filter(gene %in% vits)
 
-path.df <- path.df %>% arrange(desc(start)) %>% mutate(gene=factor(gene, levels=unique(gene))) %>% group_by(gene, day) %>% summarise(medCI = log2(median(CI, na.rm=TRUE)), hits=ifelse(sum(ifelse(zscore_padj<0.05, 1,0)) > 0, 'black','white'), medZscore = median(z.score, na.rm=TRUE))
+path.df <- path.df %>% arrange(desc(start)) %>% mutate(gene=factor(gene, levels=unique(gene))) %>% group_by(gene, day) %>% summarise(medCI = log2(median(ci_nov, na.rm=TRUE)), hits=ifelse(sum(ifelse(padj_nov<0.05, 1,0)) > 0, 'black','white'), medZscore = median(zscore_nov, na.rm=TRUE))
 
 minval <- floor(path.df$medZscore %>% min())
 maxval <- ceiling(path.df$medZscore %>% max())
@@ -157,6 +160,6 @@ cofac <- path.df %>% ggplot(aes(day, gene)) +
 ```{r}
 metabolism2 <- baa1|baa2|pur|(pyr/faa/cofac)
 
-ggsave("../../../data/10_21_pathway_enrichment/heatmaps/metabolism2_z.png", metabolism2, dpi=150, height=15, width=15)
+ggsave("../../../data/12_21_results/metabolism2_z.png", metabolism2, dpi=150, height=15, width=15)
 ```
 Click the **Knit and Open Document** to built and preview an output.
