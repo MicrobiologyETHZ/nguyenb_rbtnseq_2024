@@ -62,8 +62,8 @@ def getFastq1(wildcards):
 def getFastq2(wildcards):
     return sampleInfo_merged[sampleInfo_merged['sample'] == wildcards.sample].fastq_2
 
-
-if config['qc'] == 'yes':
+print(config['qc'])
+if config['qc'] == 'PE':
 
     rule qc:
         input:
@@ -72,18 +72,18 @@ if config['qc'] == 'yes':
             adapters = Path(config['adapters']),
             phix = Path(config['phix'])
         output:
-            fq1_clean = OUTDIR /'clean_reads/{sample}/{sample}.1.fq.gz',
-            fq2_clean = OUTDIR /'clean_reads/{sample}/{sample}.2.fq.gz',
-            adapter_matched = OUTDIR /'clean_reads/{sample}/removedreads/{sample}.adapter.matched.fq.gz',
-            adapter_singletons = OUTDIR /'clean_reads/{sample}/removedreads/{sample}.adapter.singletons.fq.gz',
-            adapter_stats = OUTDIR /'clean_reads/{sample}/{sample}.adapter.stats',
-            phix_matched = OUTDIR /'clean_reads/{sample}/removedreads/{sample}.phix.matched.fq.gz',
-            phix_singletons = OUTDIR /'clean_reads/{sample}/removedreads/{sample}.phix.singletons.fq.gz',
-            phix_stats = OUTDIR /'clean_reads/{sample}/{sample}.phix.stats',
-            qc_failed = OUTDIR /'clean_reads/{sample}/removedreads/{sample}.qc.failed.fq.gz',
-            qc_singletons = OUTDIR /'clean_reads/{sample}/{sample}.s.fq.gz',
-            qc_stats = OUTDIR /'clean_reads/{sample}/{sample}.qc.stats',
-            marker = touch(OUTDIR /'clean_reads/{sample}/{sample}.qc.done')
+            fq1_clean = DATADIR /'clean_reads/{sample}/{sample}.1.fq.gz',
+            fq2_clean = DATADIR /'clean_reads/{sample}/{sample}.2.fq.gz',
+            adapter_matched = DATADIR /'clean_reads/{sample}/removedreads/{sample}.adapter.matched.fq.gz',
+            adapter_singletons = DATADIR /'clean_reads/{sample}/removedreads/{sample}.adapter.singletons.fq.gz',
+            adapter_stats = DATADIR /'clean_reads/{sample}/{sample}.adapter.stats',
+            phix_matched = DATADIR /'clean_reads/{sample}/removedreads/{sample}.phix.matched.fq.gz',
+            phix_singletons = DATADIR /'clean_reads/{sample}/removedreads/{sample}.phix.singletons.fq.gz',
+            phix_stats = DATADIR /'clean_reads/{sample}/{sample}.phix.stats',
+            qc_failed = DATADIR /'clean_reads/{sample}/removedreads/{sample}.qc.failed.fq.gz',
+            qc_singletons = DATADIR /'clean_reads/{sample}/{sample}.s.fq.gz',
+            qc_stats = DATADIR /'clean_reads/{sample}/{sample}.qc.stats',
+            marker = touch(DATADIR /'clean_reads/{sample}/{sample}.qc.done')
         params:
             trimq = config['trimq'],
             maq = config['mapq'],
@@ -94,15 +94,12 @@ if config['qc'] == 'yes':
             mem = 8000,
             time = 235
         conda:
-            "../envs/preprocessing.yaml"
-        benchmark:
-            OUTDIR /'clean_reads/{sample}/{sample}.qc.benchmark'
+            "preprocessing"
         log:
-            log = OUTDIR /'logs/qc/{sample}.qc.log'
+            log = OUTDIR /'logs/{sample}.qc.log'
         threads:
             8
         shell:
-            "echo {params.qoutfile}; "
             "bbduk.sh -Xmx1G pigz=t bgzip=f usejni=t "
             "in={input.fq1} in2={input.fq2} "
             "out=stdout.fq outm={output.adapter_matched} "
@@ -132,13 +129,13 @@ elif config['qc'] == 'SE':
             adapters = Path(config['adapters']),
             phix = Path(config['phix'])
         output:
-            fq1_clean = OUTDIR /'clean_reads/{sample}/{sample}.1.fq.gz',
-            adapter_matched = OUTDIR /'clean_reads/{sample}/removedreads/{sample}.adapter.matched.fq.gz',
-            adapter_stats = OUTDIR /'clean_reads/{sample}/{sample}.adapter.stats',
-            phix_matched = OUTDIR /'clean_reads/{sample}/removedreads/{sample}.phix.matched.fq.gz',
-            phix_stats = OUTDIR /'clean_reads/{sample}/{sample}.phix.stats',
-            qc_failed = OUTDIR /'clean_reads/{sample}/removedreads/{sample}.qc.failed.fq.gz',
-            qc_stats = OUTDIR /'clean_reads/{sample}/{sample}.qc.stats',
+            fq1_clean = DATADIR /'clean_reads/{sample}/{sample}.1.fq.gz',
+            adapter_matched = DATADIR /'clean_reads/{sample}/removedreads/{sample}.adapter.matched.fq.gz',
+            adapter_stats = DATADIR /'clean_reads/{sample}/{sample}.adapter.stats',
+            phix_matched = DATADIR /'clean_reads/{sample}/removedreads/{sample}.phix.matched.fq.gz',
+            phix_stats = DATADIR /'clean_reads/{sample}/{sample}.phix.stats',
+            qc_failed = DATADIR /'clean_reads/{sample}/removedreads/{sample}.qc.failed.fq.gz',
+            qc_stats = DATADIR/'clean_reads/{sample}/{sample}.qc.stats',
             marker = touch(OUTDIR /'clean_reads/{sample}/{sample}.qc.done')
         params:
             trimq = config['trimq'],
@@ -150,9 +147,7 @@ elif config['qc'] == 'SE':
             mem = 8000,
             time = 235
         conda:
-            "../envs/preprocessing.yaml"
-        benchmark:
-            OUTDIR /'clean_reads/{sample}/{sample}.qc.benchmark'
+            "preprocessing"
         log:
             log = OUTDIR /'logs/qc/{sample}.qc.log'
         threads:
@@ -185,8 +180,8 @@ else:
             fq1 = getFastq1,
             fq2 = getFastq2,
         output:
-            fq1_clean = OUTDIR /'clean_reads/{sample}/{sample}.1.fq.gz',
-            fq2_clean = OUTDIR /'clean_reads/{sample}/{sample}.2.fq.gz',
+            fq1_clean = DATADIR /'clean_reads/{sample}/{sample}.1.fq.gz',
+            fq2_clean = DATADIR /'clean_reads/{sample}/{sample}.2.fq.gz',
             marker = touch(OUTDIR /'clean_reads/{sample}/{sample}.qc.done')
         params:
             qoutfile = lambda wildcards: OUTDIR /f'logs/qc/{wildcards.sample}.qc.qout',
@@ -195,11 +190,7 @@ else:
             mem = 8000,
             time = 235
         conda:
-            "../envs/preprocessing.yaml"
-        benchmark:
-            OUTDIR /'clean_reads/{sample}/{sample}.qc.benchmark'
-        log:
-            log = OUTDIR /'logs/qc/{sample}.qc.log'
+            "preprocessing"
         threads:
             8
         shell:
