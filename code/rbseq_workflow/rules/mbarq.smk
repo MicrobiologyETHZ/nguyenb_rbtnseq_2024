@@ -1,5 +1,5 @@
 import pandas as pd
-
+from pathlib import Path
 # Map
 
 rule sample_mapping:
@@ -32,31 +32,34 @@ rule sample_mapping:
 
 # Count
 #
-# def get_mapping_file(wildcards):
-#     metadata_file = Path(config['metaDir'])/f'{wildcards.sample}_metadata.edited.txt'
-#     df = pd.read_table(metadata_file, usecols=[0,1], names=['code', 'library'], dtype={'code':str, 'library':str})
-#     wc = wildcards.code#.split('_')[1]
-#     library = df.loc[df.code == wc, 'library'].values[0]
-#     return Path(config['mappingDir'])/f'{library}/{library}.barcode_map.annotated.csv'
-#
-#
-# rule quantify_one:
-#     input: OUTDIR / 'demux/{sample}/{sample}_{code}.fasta'
-#     output: OUTDIR / 'counts/{sample}/{sample}_{code}_counts_mapped.csv'
-#     params:
-#         barcode_map=get_mapping_file,
-#         outdir=lambda wildcards: OUTDIR / f'counts/{wildcards.sample}',
-#         qoutfile=lambda wildcards: OUTDIR / f'logs/counts/{wildcards.sample}_{wildcards.code}.quant.qout',
-#         qerrfile=lambda wildcards: OUTDIR / f'logs/counts/{wildcards.sample}_{wildcards.code}.quant.qerr',
-#         prefix=lambda wildcards: f'{wildcards.sample}_{wildcards.code}',
-#         scratch=500,
-#         mem=8000,
-#         time=235
-#     log:
-#         log=OUTDIR / 'logs/counts/{sample}_{code}.quant.log'
-#     conda:
-#         'envs/map.yaml'
-#     threads:
-#         8
-#     shell: 'tnseq2 count -f {input} -m {params.barcode_map} '
-#            ' -o {params.outdir} -n {params.prefix} &> {log.log}'
+def get_mapping_file(wildcards):
+    metadata_file = Path(config['metaDir'])/f'{wildcards.sample}_metadata.edited.txt'
+    df = pd.read_table(metadata_file, usecols=[0,1], names=['code', 'library'], dtype={'code':str, 'library':str})
+    wc = wildcards.code#.split('_')[1]
+    library = df.loc[df.code == wc, 'library'].values[0]
+    return Path(config['mappingDir'])/f'{library}/{library}.annotated.csv'
+
+
+rule quantify_one:
+    input: DATADIR / 'demux/{sample}/{sample}_{code}.fasta.gz'
+    output: OUTDIR / 'counts/{sample}/{sample}_{code}_mbarq_counts.csv'
+    params:
+        barcode_map=get_mapping_file,
+        outdir=lambda wildcards: OUTDIR / f'counts/{wildcards.sample}',
+        transposon= config['tn'],
+        qoutfile=lambda wildcards: OUTDIR / f'logs/{wildcards.sample}_{wildcards.code}.quant.qout',
+        qerrfile=lambda wildcards: OUTDIR / f'logs/{wildcards.sample}_{wildcards.code}.quant.qerr',
+        prefix=lambda wildcards: f'{wildcards.sample}_{wildcards.code}',
+        scratch=500,
+        mem=8000,
+        time=235
+    log:
+        log=OUTDIR / 'logs/{sample}_{code}.quant.log'
+    conda:
+        'mbarq'
+    threads:
+        8
+    shell: 'mbarq count -f {input} -m {params.barcode_map} '
+           ' -o {params.outdir} -n {params.prefix} -tn {params.transposon} &> {log.log}'
+
+
