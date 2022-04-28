@@ -4,9 +4,10 @@ root:
 mapDir: maps
 countDir: counts
 resultDir: results
+libraryCountsDir: counts_by_library
 sampleDataOriginal: complete_metadata.tsv
-sampleData:
+sampleData: 14-04-22-sample-data.csv
 controlData: controls.txt
 scratchDir:
   local: /Users/ansintsova/git_repos/nguyenb_tnseq/data/scratch
-  server:
+  server: /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/scratch/04_22/tmp
