@@ -1,12 +1,8 @@
-name: tnseq
+name: flows
 channels:
   - defaults
   - bioconda
   - conda-forge
 dependencies:
   - python==3.8.*
-  - snakemake==5.22.* # will probably want to update the snakemake version to at least 6.0
-#  - blast==2.9.*
-#  - r=4.0
-#  - bioconductor-deseq2
-#  - bioconductor-genomeinfodbdata=1.2.3
+  - snakemake==7.1.0
