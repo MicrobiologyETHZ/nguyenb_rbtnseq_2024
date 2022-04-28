@@ -1,0 +1,12 @@
+root:
+  local: /Users/ansintsova/polybox/Hardt/nguyenb/04_22_results
+  server: /nfs/cds-peta/exports/biol_micro_cds_gr_sunagawa/scratch/ansintsova/Projects_NCCR/hardt/nguyenb/tnseq/scratch/04_22
+mapDir: maps
+countDir: counts
+resultDir: results
+sampleDataOriginal: complete_metadata.tsv
+sampleData:
+controlData: controls.txt
+scratchDir:
+  local: /Users/ansintsova/git_repos/nguyenb_tnseq/data/scratch
+  server:
