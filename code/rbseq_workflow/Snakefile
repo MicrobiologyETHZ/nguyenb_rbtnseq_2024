@@ -1,0 +1,160 @@
+from pathlib import Path
+import sys
+import pandas as pd
+
+OUTDIR = Path(config['outDir'])
+DATADIR = Path(config['dataDir'])
+sampleInfo = pd.read_csv(config['samples'])
+SAMPLES = sampleInfo['sample'].unique()
+
+
+from snakemake.utils import min_version
+min_version("7.0")
+
+DATADIR = Path(config['dataDir'])
+OUTDIR = Path(config['outDir'])
+# SAMPLEFILE = Path(config['sampleFile'])
+# SAMPLES = get_subsamples(SAMPLEFILE)
+
+SAMPLES = pd.read_csv(config['samples'])['sample'].unique()
+
+
+"""
+PREPROCESSING
+
+In the config file, can specify whether to run FastQC before preprocessing, after, both or not at all.
+By default, will only run after preprocessing.
+
+"""
+
+# todo add merging samples sequenced multiple times
+
+include: "rules/preprocessing.smk"
+include: "rules/mbarq.smk"
+
+# rule test:
+#     input: OUTDIR/'clean_reads/LL20/LL20.1.fq.gz'
+
+print(SAMPLES)
+
+if not config['fastqc']:
+    rule preprocess:
+        input: [OUTDIR/f'clean_reads/{sample}/{sample}.qc.done' for sample in SAMPLES]
+elif config['fastqc'] == 'after':
+    rule preprocess:
+        input: OUTDIR/'fastqc/after.multiqc.done'
+elif config['fastqc'] == 'before':
+    rule preprocess:
+        input: OUTDIR/'fastqc/before.multiqc.done'
+elif config['fastqc'] == 'both':
+    rule preprocess:
+        input: OUTDIR/'fastqc/both.multiqc.done'
+else:
+    print(f'{config["fastqc"]} is not a recognized option for fastqc')
+    sys.exit(1)
+
+
+
+# Go back to getFastq1, to get sample names...
+
+
+rule map:
+    input: [OUTDIR/f'maps/{sample}/{sample}.annotated.csv' for sample in SAMPLES]
+
+# #DEMUX
+#
+#
+# rule demux_all:
+#     input: [OUTDIR/f'demux/{sample}/{sample}.demux.done' for sample in SAMPLES]
+#     #input: [OUTDIR/f'demux/20160518_RUN270_o2459_DNAID1315/20160518_RUN270_o2459_DNAID1315.demux.done']
+#
+#
+# rule demux_sample:
+#         input:
+#             fq1 = OUTDIR/"clean_reads/{sample}/{sample}.1.fq.gz"
+#         output:
+#             demux_marker = touch(OUTDIR/'demux/{sample}/{sample}.demux.done'),
+#         params:
+#             name = '{sample}',
+#             multiplex_codes = config['multiplex_codes'],
+#             outdir = lambda wildcards: OUTDIR/f'demux/{wildcards.sample}',
+#             transposon = config['tn'],
+#             qerrfile = lambda wildcards: OUTDIR/f'logs/demux/{wildcards.sample}.demux.qerr',
+#             qoutfile = lambda wildcards: OUTDIR/f'logs/demux/{wildcards.sample}.demux.qout',
+#             scratch = 6000,
+#             mem = 8800,
+#             time = 1400
+#         log:
+#             log = OUTDIR/'logs/demux/{sample}.demux.log',
+#         conda:
+#             'envs/map.yaml'
+#         threads:
+#             8
+#         shell:
+#             "tnseq2 demux -i {input.fq1} -d {params.multiplex_codes} -o {params.outdir} "
+#             "-n {params.name} -tn {params.transposon} --rc  &> {log.log} "
+#
+#
+#
+
+# QUANTIFY
+
+
+def get_codes(wildcards):
+    metadata_file = Path(config['metaDir'])/f'{wildcards.sample}_metadata.txt'
+    df = pd.read_table(metadata_file, usecols=[0,1], names=['code', 'library'], dtype={'code':str, 'library':str})
+    return [str(OUTDIR/f'counts/{wildcards.sample}/{wildcards.sample}') + f'_{code}_mbarq_counts.csv' for code in df.code.values]
+
+
+rule quantify_all:
+    input: get_codes
+    output: touch(OUTDIR/'counts/{sample}.done')
+
+
+rule merge:
+    input: [OUTDIR/f'counts/{sample}.done' for sample in SAMPLES]
+    output: OUTDIR/f'counts/{config["projectName"]}_mbarq_merged_counts.csv'
+    params:
+        count_dir = OUTDIR/f'counts',
+        qoutfile = lambda wildcards: OUTDIR /f'logs/{config["projectName"]}.merge_counts.qout',
+        qerrfile = lambda wildcards: OUTDIR /f'logs/{config["projectName"]}.merge_counts.qerr',
+        attribute = config['attribute'],
+        name = config['projectName'],
+        scratch = 500,
+        mem = 8000,
+        time = 235
+    conda:
+        'mbarq'
+    log:
+        log = OUTDIR /f'logs/{config["projectName"]}.merge_counts.log'
+    shell:
+        "mbarq merge -d {params.count_dir} -o {params.count_dir} "
+        "-a {params.attribute} -n {params.name} &> {log.log}"
+
+
+
+# #
+# rule merge_one:
+#     input: OUTDIR/'counts/{sample}.done'
+#     output: OUTDIR/'counts/{sample}/merged_counts.csv',
+#         OUTDIR/'counts/{sample}/merged_controls.csv',
+#     params:
+#         count_dir = OUTDIR/f'counts',
+#         meta_file = lambda wildcards: Path(config['metaDir'])/f'{wildcards.sample}_metadata.edited.txt',
+#         control_file = config['controlFile'],
+#         qoutfile = lambda wildcards: OUTDIR /f'logs/{wildcards.sample}.merge_counts.qout',
+#         qerrfile = lambda wildcards: OUTDIR /f'logs/{wildcards.sample}.merge_counts.qerr',
+#         sample = lambda wildcards: f'{wildcards.sample}',
+#         scratch = 500,
+#         mem = 8000,
+#         time = 235
+#     log:
+#         log = OUTDIR /'logs/counts/{sample}.merge_counts.log'
+#     conda:
+#         'envs/map.yaml'
+#     threads:
+#         8
+#     shell:
+#         'tnseq2 merge -d {params.count_dir}/{params.sample} -m {params.meta_file} '
+#         '-b {params.control_file} -n {params.sample} '
+

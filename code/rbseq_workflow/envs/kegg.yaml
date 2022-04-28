@@ -1,0 +1,9 @@
+name:
+  kegg_annotate
+dependencies:
+  - python==3.8.*
+  - pandas
+  - numpy
+  - biopython == 1.77
+  - diamond == 2.0.9
+
