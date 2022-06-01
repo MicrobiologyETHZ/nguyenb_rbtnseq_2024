@@ -13,4 +13,5 @@ scratchDir = Path(configs['scratchDir']['server'])
 mapDir = root/configs['mapDir']
 countDir = root/configs['libraryCountsDir']
 resultDir = root/configs['resultDir']
+metMaps = root/configs['metMapsDir']
 sample_data_file = root/configs['sampleData']
