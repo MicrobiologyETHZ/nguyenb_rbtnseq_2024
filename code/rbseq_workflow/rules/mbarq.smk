@@ -71,7 +71,6 @@ rule merge:
         out_dir = OUTDIR/'counts',
         qoutfile = lambda wildcards: OUTDIR /f'logs/{wildcards.sample}.merge_counts.qout',
         qerrfile = lambda wildcards: OUTDIR /f'logs/{wildcards.sample}.merge_counts.qerr',
-        attribute = config['attribute'],
         name = '{sample}',
         scratch = 500,
         mem = 8000,
@@ -79,8 +78,8 @@ rule merge:
     conda:
         'mbarq_lite'
     log:
-        log = OUTDIR /f'logs/{config["projectName"]}.merge_counts.log'
+        log = OUTDIR /'logs/{sample}.merge_counts.log'
     shell:
         "mbarq merge -d {params.count_dir} -o {params.out_dir} "
-        "-a {params.attribute} -n {params.name} &> {log.log}"
+        "-a Name  -n {params.name} &> {log.log}"
 
