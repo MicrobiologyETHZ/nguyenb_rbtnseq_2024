@@ -22,9 +22,9 @@ rule sample_mapping:
         log:
             log = OUTDIR/'logs/{sample}.map.log',
         conda:
-            'mbarq'
+            'mbarq_lite'
         threads:
-            32
+            16
         shell:
             "mbarq map -f {input.fq1}  -o {params.outdir} -tn {params.transposon} "
             "-l {params.l} -g {params.genome} -n {params.sample} -a {params.gff}  &> {log.log} "
@@ -56,10 +56,31 @@ rule quantify_one:
     log:
         log=OUTDIR / 'logs/{sample}_{code}.quant.log'
     conda:
-        'mbarq'
+        'mbarq_lite'
     threads:
         8
     shell: 'mbarq count -f {input} -m {params.barcode_map} '
            ' -o {params.outdir} -n {params.prefix} -tn {params.transposon} &> {log.log}'
 
+
+rule merge:
+    input: OUTDIR/'counts/{sample}.done'
+    output: OUTDIR/'counts/{sample}_mbarq_merged_counts.csv'
+    params:
+        count_dir = lambda wildcards: OUTDIR/f'counts/{wildcards.sample}',
+        out_dir = OUTDIR/'counts',
+        qoutfile = lambda wildcards: OUTDIR /f'logs/{wildcards.sample}.merge_counts.qout',
+        qerrfile = lambda wildcards: OUTDIR /f'logs/{wildcards.sample}.merge_counts.qerr',
+        attribute = config['attribute'],
+        name = '{sample}',
+        scratch = 500,
+        mem = 8000,
+        time = 235
+    conda:
+        'mbarq_lite'
+    log:
+        log = OUTDIR /f'logs/{config["projectName"]}.merge_counts.log'
+    shell:
+        "mbarq merge -d {params.count_dir} -o {params.out_dir} "
+        "-a {params.attribute} -n {params.name} &> {log.log}"
 

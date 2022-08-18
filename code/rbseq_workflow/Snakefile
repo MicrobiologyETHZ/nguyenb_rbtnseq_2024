@@ -99,7 +99,6 @@ rule map:
 
 # QUANTIFY
 
-
 def get_codes(wildcards):
     metadata_file = Path(config['metaDir'])/f'{wildcards.sample}_metadata.txt'
     df = pd.read_table(metadata_file, usecols=[0,1], names=['code', 'library'], dtype={'code':str, 'library':str})
@@ -111,25 +110,9 @@ rule quantify_all:
     output: touch(OUTDIR/'counts/{sample}.done')
 
 
-rule merge:
-    input: [OUTDIR/f'counts/{sample}.done' for sample in SAMPLES]
-    output: OUTDIR/f'counts/{config["projectName"]}_mbarq_merged_counts.csv'
-    params:
-        count_dir = OUTDIR/f'counts',
-        qoutfile = lambda wildcards: OUTDIR /f'logs/{config["projectName"]}.merge_counts.qout',
-        qerrfile = lambda wildcards: OUTDIR /f'logs/{config["projectName"]}.merge_counts.qerr',
-        attribute = config['attribute'],
-        name = config['projectName'],
-        scratch = 500,
-        mem = 8000,
-        time = 235
-    conda:
-        'mbarq'
-    log:
-        log = OUTDIR /f'logs/{config["projectName"]}.merge_counts.log'
-    shell:
-        "mbarq merge -d {params.count_dir} -o {params.count_dir} "
-        "-a {params.attribute} -n {params.name} &> {log.log}"
+rule merge_all:
+    input: [OUTDIR/f'counts/{sample}_mbarq_merged_counts.csv' for sample in SAMPLES]
+
 
 
 

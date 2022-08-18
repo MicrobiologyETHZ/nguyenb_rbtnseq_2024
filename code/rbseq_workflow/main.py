@@ -95,7 +95,7 @@ def merge(config, local, dry):
     click.echo(f"Config file: {config}")
     click.echo("Running {}".format('locally' if local else ('dry' if dry else 'on cluster')))
     smk_file = "Snakefile"
-    cmd = snakemake_cmd(config, 'merge', smk_file, dry, local)
+    cmd = snakemake_cmd(config, 'merge_all', smk_file, dry, local)
     click.echo(" ".join(cmd))
 
 
