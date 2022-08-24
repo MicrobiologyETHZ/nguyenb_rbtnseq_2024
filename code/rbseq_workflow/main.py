@@ -118,5 +118,18 @@ def snakemake_cmd(config, analysis, smk_file, dry, local, no_conda=False):
     return cmd
 
 
+@main.command()
+@click.option('--config', '-c',  help='Configuration File')
+@click.option('--local', is_flag=True, help="Run on local machine")
+@click.option('--dry', is_flag=True, help="Show commands without running them")
+def count_wetmore(config, local, dry):
+    click.echo("Running RBSeq Analysis Pipeline: counting Wetmore data")
+    click.echo(f"Config file: {config}")
+    click.echo("Running {}".format('locally' if local else ('dry' if dry else 'on cluster')))
+    smk_file = "Snakefile"
+    cmd = snakemake_cmd(config, 'count_for_manuscript', smk_file, dry, local)
+    click.echo(" ".join(cmd))
+
+
 if __name__ == "__main__":
     main()
