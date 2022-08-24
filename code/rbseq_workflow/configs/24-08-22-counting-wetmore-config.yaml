@@ -1,10 +1,10 @@
 # Counting
 projectName: 08-22-rbseq-all
 dataDir: /nfs/cds-peta/exports/biol_micro_cds_gr_sunagawa/scratch/ansintsova/Projects_NCCR/hardt/nguyenb/tnseq/scratch/manuscript_data/wetmore_2015
-metaDir:
-outDir:
+metaDir: ''
+outDir: ''
 samples: /nfs/cds-peta/exports/biol_micro_cds_gr_sunagawa/scratch/ansintsova/Projects_NCCR/hardt/nguyenb/tnseq/scratch/manuscript_data/wetmore_2015/barseq_samples.csv
-mappingDir:
+mappingDir: ''
 attribute: Name
 
 
