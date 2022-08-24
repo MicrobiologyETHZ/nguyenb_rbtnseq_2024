@@ -79,6 +79,8 @@ rule merge:
         'mbarq_lite'
     log:
         log = OUTDIR /'logs/{sample}.merge_counts.log'
+    threads:
+        8
     shell:
         "mbarq merge -d {params.count_dir} -o {params.out_dir} "
         "-a Name  -n {params.name} &> {log.log}"
