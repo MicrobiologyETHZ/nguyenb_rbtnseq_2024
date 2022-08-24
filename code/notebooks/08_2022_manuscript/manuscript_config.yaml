@@ -1,0 +1,31 @@
+root:
+  local: /Users/ansintsova/git_repos/nguyenb_tnseq/data/08_22_manuscript
+  server: /nfs/cds-peta/exports/biol_micro_cds_gr_sunagawa/scratch/ansintsova/Projects_NCCR/hardt/nguyenb/tnseq/scratch/manuscript_data
+
+
+nguyen:
+    map_file:
+        unfiltered: nguyen_2020/library_11_1_clean_R1.map.annotated.csv
+        filtered: nguyen_2020/library_11_1_l50.annotated.csv
+    counts_file:
+    results_file:
+    sample_data_file: nguyen_2020/nguyen_2020_sample_data.csv
+    publised_results: nguyen_2020/nguyen_2020_results.csv
+    published_phenotypes: nguyen_2020/nguyen_2020_inframe_mut_phenotypes.csv
+    
+wetmore:
+    map_file:
+        unfiltered: wetmore_2015/TnSeq_SB2B_ML5_l0.annotated.csv
+        filtered: wetmore_2015/TnSeq_SB2B_ML5_l5.annotated.csv
+        
+    counts_file:
+    results_file:
+    sample_data_file:
+    
+scratchDir:
+  local: /Users/ansintsova/git_repos/nguyenb_tnseq/data/08_22_manuscript/scratch
+  server: /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/scratch/manuscript_data/tmp
+
+figuresDir:
+  local:
+  server: /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/scratch/manuscript_data/figures
