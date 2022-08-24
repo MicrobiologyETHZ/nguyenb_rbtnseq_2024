@@ -85,3 +85,55 @@ rule merge:
         "mbarq merge -d {params.count_dir} -o {params.out_dir} "
         "-a Name  -n {params.name} &> {log.log}"
 
+
+rule analyze:
+    input:
+        OUTDIR/'counts/{sample}_mbarq_merged_counts.csv'
+    output:
+        OUTDIR/'analysis/{sample}_rra_results.csv'
+    params:
+        sample_data=config['sampleData'],
+        out_dir=OUTDIR / 'analysis',
+        control_file = config['controlStrains'],
+        baseline=config['baseline'],
+        treatment_col=config['treatmentColumn'],
+        qoutfile=lambda wildcards: OUTDIR / f'logs/{wildcards.sample}.analysis.qout',
+        qerrfile=lambda wildcards: OUTDIR / f'logs/{wildcards.sample}.analysis.qerr',
+        name='{sample}',
+        scratch=500,
+        mem=8000,
+        time=235
+    conda:
+        'mbarq_lite'
+    log:
+        log = OUTDIR /'logs/{sample}.analysis.log'
+    threads:
+        8
+    shell:
+        "mbarq analyze -i {params.input} -o {params.out_dir} "
+        "--baseline {params.baseline} "
+        "--treatment_column {params.treatment_col} -g Name "
+        " &> {log.log}"
+
+
+rule quantify_db:
+    input: DATADIR /'barseq_samples/{sample}.fastq.gz'
+    output: DATADIR/ 'counts/{sample}_mbarq_counts.csv'
+    params:
+        barcode_map=DATADIR/'TnSeq_SB2B_ML5_l5.annotated.csv',
+        outdir= DATADIR/'counts',
+        transposon=config['tn'],
+        qoutfile=lambda wildcards: DATADIR / f'logs/{wildcards.sample}.quant.qout',
+        qerrfile=lambda wildcards: DATADIR / f'logs/{wildcards.sample}.quant.qerr',
+        scratch=500,
+        mem=8000,
+        time=235
+    log:
+        log=DATADIR / 'logs/{sample}.quant.log'
+    conda:
+        'mbarq_lite'
+    threads:
+        8
+    shell:
+        'mbarq count -f {input} -m {params.barcode_map} '
+        ' -o {params.outdir}  -tn {params.transposon} --rev_complement -e 0 &> {log.log}'

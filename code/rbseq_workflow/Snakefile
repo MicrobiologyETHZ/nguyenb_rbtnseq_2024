@@ -113,7 +113,8 @@ rule quantify_all:
 rule merge_all:
     input: [OUTDIR/f'counts/{sample}_mbarq_merged_counts.csv' for sample in SAMPLES]
 
-
+rule count_for_manuscript:
+    input: [DATADIR/f'counts/{sample}_mbarq_counts.csv' for sample in SAMPLES]
 
 
 # #
