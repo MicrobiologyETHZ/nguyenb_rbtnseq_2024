@@ -4,24 +4,33 @@ root:
 
 
 nguyen:
-    map_file:
+    mapFile:
         unfiltered: nguyen_2020/library_11_1_clean_R1.map.annotated.csv
         filtered: nguyen_2020/library_11_1_l50.annotated.csv
-    counts_file:
-    results_file:
-    sample_data_file: nguyen_2020/nguyen_2020_sample_data.csv
-    publised_results: nguyen_2020/nguyen_2020_results.csv
-    published_phenotypes: nguyen_2020/nguyen_2020_inframe_mut_phenotypes.csv
+    countsFile: nguyen_2020/nguyen_2020_l50_mbarq_merged_counts.csv
+    resultsFile: nguyen_2020/results/nguyen_2020_l50_mbarq_merged_counts_rra_results_locus_tag.csv
+    resultsFileName: nguyen_2020/results/nguyen_2020_l50_mbarq_merged_counts_rra_results.csv
+    sampleDataFile: nguyen_2020/nguyen_2020_sample_data.csv
+    publishedResultsFile: nguyen_2020/nguyen_2020_results.csv
+    publishedPhenotypesFile: nguyen_2020/nguyen_2020_inframe_mut_phenotypes.csv
     
 wetmore:
-    map_file:
-        unfiltered: wetmore_2015/TnSeq_SB2B_ML5_l0.annotated.csv
-        filtered: wetmore_2015/TnSeq_SB2B_ML5_l5.annotated.csv
+    mapFile:
+        unfiltered: wetmore_2015/TnSeq_SB2B_ML5_l0_old_locus_tag.annotated.csv
+        filtered: wetmore_2015/TnSeq_SB2B_ML5_l5_old_locus_tag.annotated.csv
         
-    counts_file:
-    results_file:
-    sample_data_file:
+    countsFile: wetmore_2015/counts_1/SB2B_mbarq_merged_counts.csv
+    resultsFile: wetmore_2015/results_1/Set1_rra_results.csv
+    sampleDataFile: wetmore_2015/SB2B_metadata_carbon_source_set1.csv
+    publishedCountsFile: wetmore_2015/SB_count_table.poolcount
+    publishedResultsFile: wetmore_2015/sb2b_ml5.gene_fitness.tab
+    publishedStatsFile: wetmore_2015/sb2b_t_stat.tab
     
+jasinska:
+    sampleDataFile: jasinska_2020/SraRunTable_Jasinska.txt
+    noDrugsFile: jasinska_2020/counts/jasinska_2020_no_drug_mbarq_merged_counts.csv
+    lowTMPFile: jasinska_2020/counts/jasinska_2020_low_tmp_mbarq_merged_counts.csv
+  
 scratchDir:
   local: /Users/ansintsova/git_repos/nguyenb_tnseq/data/08_22_manuscript/scratch
   server: /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/scratch/manuscript_data/tmp
