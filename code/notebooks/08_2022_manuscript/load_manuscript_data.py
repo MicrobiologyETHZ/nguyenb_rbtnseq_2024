@@ -36,3 +36,13 @@ root = Path(configs['root'][run_on])
 scratchDir = Path(configs['scratchDir'][run_on])
 figuresDir = Path(configs['figuresDir'][run_on])
 
+alphabetClrs = px.colors.qualitative.Alphabet
+clrs = ["#f7ba65", "#bf4713", "#9c002f", "#d73d00", "#008080", "#004c4c"]
+colors = {'grey': alphabetClrs[8], 
+        'light_yellow': clrs[0],
+        'darko': clrs[1],
+        'maroon':clrs[2],
+        'brighto': clrs[3],
+        'teal':clrs[4],
+        'darkteal':clrs[5]
+       }
