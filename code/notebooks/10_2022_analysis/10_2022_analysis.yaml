@@ -1,0 +1,46 @@
+root: /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/scratch/08_22
+ 
+mapsDir: maps
+countsDir: counts
+resultsDir: results
+figuresDir: figures
+scratchDir: /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/scratch/tmp
+
+
+sampleDataFile: 14-04-22-sample-data.csv
+controlFile: controls.txt
+
+dnaids:
+ - dnaid1428
+ - dnaid1457
+ - dnaid2016
+ - dnaid2018
+ - dnaid2023
+ - dnaid2025
+ - dnaid2027
+ - dnaid2029
+ - dnaid1429
+ - dnaid2015
+ - dnaid2017
+ - dnaid2019
+ - dnaid2024
+ - dnaid2026
+ - dnaid2028
+ - dnaid2030
+
+libraries:
+ - library_10_1
+ - library_11_2  
+ - library_12_2  
+ - library_13_2   
+ - library_9_1
+ - library_10_2 
+ - library_12_1 
+ - library_13_1  
+ - library_14_2 
+ - library_15_1  
+
+
+  
+
+
