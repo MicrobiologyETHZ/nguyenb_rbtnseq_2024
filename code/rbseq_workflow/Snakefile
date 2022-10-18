@@ -99,19 +99,38 @@ rule map:
 
 # QUANTIFY
 
-def get_codes(wildcards):
-    metadata_file = Path(config['metaDir'])/f'{wildcards.sample}_metadata.txt'
-    df = pd.read_table(metadata_file, usecols=[0,1], names=['code', 'library'], dtype={'code':str, 'library':str})
-    return [str(OUTDIR/f'counts/{wildcards.sample}/{wildcards.sample}') + f'_{code}_mbarq_counts.csv' for code in df.code.values]
+# def get_codes(wildcards):
+#     metadata_file = Path(config['sampleData'])
+#     df = pd.read_csv(metadata_file)
+#     codes = df.codes.values
+#     libraries = df.library.values
+#     return [str(OUTDIR/f'counts/{lib}/{wildcards.sample}') + f'_{code}_mbarq_counts.csv' for lib, code in zip(codes, libraries)]
 
+
+def get_counting_samples():
+    sampleData = pd.read_csv(config['sampleData'])
+    sampleData = sampleData[sampleData.dnaid.isin(SAMPLES)]
+    samples = sampleData.sampleID.values # should be unique
+    return samples
+
+count_samples = get_counting_samples()
+libraries = ["library_10_1", "library_11_2", "library_12_2",
+            "library_13_2", "library_9_1", "library_10_2",
+            "library_12_1", "library_13_1", "library_14_2", "library_15_1"]
 
 rule quantify_all:
-    input: get_codes
-    output: touch(OUTDIR/'counts/{sample}.done')
-
+    input: [OUTDIR/f'counts/{sample}_mbarq_counts.csv' for sample in count_samples]
 
 rule merge_all:
-    input: [OUTDIR/f'counts/{sample}_mbarq_merged_counts.csv' for sample in SAMPLES]
+    input: [OUTDIR/f'counts/{lib}_mbarq_merged_counts.csv' for lib in libraries]
+
+rule analyze_all:
+    input: [OUTDIR/f'analysis/{lib}_rra_results.csv' for lib in libraries]
+
+rule analyze_unenriched:
+    input: [OUTDIR/f'analysis/{lib}_unenriched_inoculum_rra_results.csv' for lib in libraries]
+
+
 
 rule count_for_manuscript:
     input: [DATADIR/f'counts/{sample}_mbarq_counts.csv' for sample in SAMPLES]

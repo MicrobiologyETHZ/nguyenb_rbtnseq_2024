@@ -98,6 +98,29 @@ def merge(config, local, dry):
     cmd = snakemake_cmd(config, 'merge_all', smk_file, dry, local)
     click.echo(" ".join(cmd))
 
+@main.command()
+@click.option('--config', '-c',  help='Configuration File')
+@click.option('--local', is_flag=True, help="Run on local machine")
+@click.option('--dry', is_flag=True, help="Show commands without running them")
+def analyze(config, local, dry):
+    click.echo("Running RBSeq Analysis Pipeline: counting and merging samples data")
+    click.echo(f"Config file: {config}")
+    click.echo("Running {}".format('locally' if local else ('dry' if dry else 'on cluster')))
+    smk_file = "Snakefile"
+    cmd = snakemake_cmd(config, 'analyze_all', smk_file, dry, local)
+    click.echo(" ".join(cmd))
+
+@main.command()
+@click.option('--config', '-c',  help='Configuration File')
+@click.option('--local', is_flag=True, help="Run on local machine")
+@click.option('--dry', is_flag=True, help="Show commands without running them")
+def analyze_inoc(config, local, dry):
+    click.echo("Running RBSeq Analysis Pipeline: counting and merging samples data")
+    click.echo(f"Config file: {config}")
+    click.echo("Running {}".format('locally' if local else ('dry' if dry else 'on cluster')))
+    smk_file = "Snakefile"
+    cmd = snakemake_cmd(config, 'analyze_unenriched', smk_file, dry, local)
+    click.echo(" ".join(cmd))
 
 def snakemake_cmd(config, analysis, smk_file, dry, local, no_conda=False):
     if dry:
@@ -111,7 +134,7 @@ def snakemake_cmd(config, analysis, smk_file, dry, local, no_conda=False):
         else:
             part1 = shlex.split(f'snakemake --configfile {config} -s {smk_file} --use-conda -k --cluster ')
         part2 = shlex.split(f'{rstring}')
-        part3 = shlex.split(f' -p -j 8 --max-jobs-per-second 1 {analysis}')
+        part3 = shlex.split(f' -p -j 6 --max-jobs-per-second 1 {analysis}')
         cmd = part1 + part2 + part3
     wdPath = Path(__file__).parent.absolute()
     subprocess.check_call(cmd, cwd=wdPath)

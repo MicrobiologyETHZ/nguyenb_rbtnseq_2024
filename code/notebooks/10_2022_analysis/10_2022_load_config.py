@@ -32,8 +32,10 @@ with open(config_file) as file:
     
 # Run on server:
 root = Path(configs['root'])
-scratchDir = Path(configs['scratchDir'])
-figuresDir = Path(configs['figuresDir'])
+scratchDir = root/configs['scratchDir']
+figuresDir = root/configs['figuresDir']
+libraries = configs['libraries']
+
 
 alphabetClrs = px.colors.qualitative.Alphabet
 clrs = ["#f7ba65", "#bf4713", "#9c002f", "#d73d00", "#008080", "#004c4c"]

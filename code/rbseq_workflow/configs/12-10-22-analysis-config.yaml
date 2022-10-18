@@ -1,0 +1,55 @@
+# Counting
+projectName: 10-22-rbseq-all
+dataDir: /nfs/cds-peta/exports/biol_micro_cds_gr_sunagawa/scratch/ansintsova/Projects_NCCR/hardt/nguyenb/tnseq/scratch/08_21
+metaDir: /nfs/cds-peta/exports/biol_micro_cds_gr_sunagawa/scratch/ansintsova/Projects_NCCR/hardt/nguyenb/tnseq/scratch/10_22/sample_data/inoc
+outDir: /nfs/cds-peta/exports/biol_micro_cds_gr_sunagawa/scratch/ansintsova/Projects_NCCR/hardt/nguyenb/tnseq/scratch/10_22/
+samples: /nfs/cds-peta/exports/biol_micro_cds_gr_sunagawa/scratch/ansintsova/Projects_NCCR/hardt/nguyenb/tnseq/scratch/08_21/23-08-22-tnseq-counting_sample.csv
+mappingDir: /nfs/cds-peta/exports/biol_micro_cds_gr_sunagawa/scratch/ansintsova/Projects_NCCR/hardt/nguyenb/tnseq/scratch/10_22/maps
+attribute: Name
+
+## General settings
+fq_fwd: _1.fq.gz
+fq_rvr: _2.fq.gz
+sanitise_name: true
+name_delimiter: _
+name_index: 1
+merge_replicates: false # if set to false, 'sample' in sample.csv has to be a unique sample identifier
+tn: B17N13GTGTATAAGAGACAG
+
+#Preprocessing
+qc: SE
+mink: 11
+trimq: 14 # 37
+mapq: 20
+minlen: 45
+adapters: 'adapters/adapters.fa'
+phix: 'adapters/phix174_ill.ref.fa.gz'
+fastqc: no
+
+## References
+genome: /nfs/cds-peta/exports/biol_micro_cds_gr_sunagawa/scratch/Projects_NCCR/ref/SL1344/ncbi-genomes-2021-08-25/GCA_000210855.2_ASM21085v2_genomic.fna
+gff: /nfs/cds-peta/exports/biol_micro_cds_gr_sunagawa/scratch/Projects_NCCR/ref/SL1344/ncbi-genomes-2021-08-25/GCA_000210855.2_ASM21085v2_genomic.gff
+
+#Mapping
+map_filter:
+
+
+#Analysis
+sampleData: /nfs/cds-peta/exports/biol_micro_cds_gr_sunagawa/scratch/ansintsova/Projects_NCCR/hardt/nguyenb/tnseq/scratch/08_22/14-04-22-sample-data.csv
+controlStrains: /nfs/cds-peta/exports/biol_micro_cds_gr_sunagawa/scratch/ansintsova/Projects_NCCR/hardt/nguyenb/tnseq/scratch/10_22/sample_data/controls.csv
+normMethod: control
+
+
+
+# KEGG
+
+kegg_dmd: /nfs/nas22/fs2202/biol_micro_sunagawa/Projects/PAN/GENERAL_METAGT_ANALYSIS_PAN/data/resources/soft/kegg_annotation/kegg_db/kegg/kegg_for_prokka-with_ko.dmnd
+kegg_ko: /nfs/nas22/fs2202/biol_micro_sunagawa/Projects/PAN/GENERAL_METAGT_ANALYSIS_PAN/data/resources/soft/kegg_annotation/kegg_db/kegg/ko
+
+## Counting
+#dataDir: /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/data/raw
+#metaDir: /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/data/metadata
+#outDir: /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/scratch/08_21
+#sampleFile: configs/samples.txt
+#
+

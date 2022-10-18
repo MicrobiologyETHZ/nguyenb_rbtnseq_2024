@@ -1,14 +1,20 @@
-root: /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/scratch/08_22
- 
+root: /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/scratch/10_22
+
+mapsL0Dir: /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/scratch/08_22/maps
 mapsDir: maps
 countsDir: counts
-resultsDir: results
+resultsDir: control_norm_analysis
 figuresDir: figures
 scratchDir: /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/scratch/tmp
 
 
-sampleDataFile: 14-04-22-sample-data.csv
-controlFile: controls.txt
+sampleDataFile: sample_data/14-04-22-sample-data.csv
+controlFile: controls.csv
+experimentalData: CI_for_TCA_for_Anna_edited.csv
+experimentalData2: 15-02-2022-ground_truth.csv
+
+gff: /nfs/cds-peta/exports/biol_micro_cds_gr_sunagawa/scratch/Projects_NCCR/ref/SL1344/ncbi-genomes-2021-08-25/GCA_000210855.2_ASM21085v2_genomic.gff
+
 
 dnaids:
  - dnaid1428
