@@ -38,6 +38,8 @@ map_filter:
 sampleData: /nfs/cds-peta/exports/biol_micro_cds_gr_sunagawa/scratch/ansintsova/Projects_NCCR/hardt/nguyenb/tnseq/scratch/08_22/14-04-22-sample-data.csv
 controlStrains: /nfs/cds-peta/exports/biol_micro_cds_gr_sunagawa/scratch/ansintsova/Projects_NCCR/hardt/nguyenb/tnseq/scratch/10_22/sample_data/controls.csv
 normMethod: median
+baseline: d0
+treatment_col: day
 
 
 

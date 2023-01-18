@@ -4,6 +4,7 @@ mapsL0Dir: /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/scratch/
 mapsDir: maps
 countsDir: counts
 resultsDir: control_norm_analysis
+unenrichedDir: unenriched_analysis
 figuresDir: figures
 scratchDir: /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/scratch/tmp
 
@@ -14,7 +15,7 @@ experimentalData: CI_for_TCA_for_Anna_edited.csv
 experimentalData2: 15-02-2022-ground_truth.csv
 
 gff: /nfs/cds-peta/exports/biol_micro_cds_gr_sunagawa/scratch/Projects_NCCR/ref/SL1344/ncbi-genomes-2021-08-25/GCA_000210855.2_ASM21085v2_genomic.gff
-
+eggnog: /nfs/cds-peta/exports/biol_micro_cds_gr_sunagawa/scratch/Projects_NCCR/ref/SL1344/ncbi-genomes-2021-08-25/SL1344.emapper.annotations.tsv
 
 dnaids:
  - dnaid1428

@@ -105,6 +105,8 @@ rule analyze_one:
         sample_data=lambda wildcards:Path(config["metaDir"])/f"{wildcards.lib}_sample_data.csv",
         out_dir=OUTDIR / 'analysis',
         control_file = config['controlStrains'],
+        baseline = config['baseline'],
+        treatment_col = config['treatment_col'],
         norm_method = config['normMethod'],
         qoutfile=lambda wildcards: OUTDIR / f'logs/{wildcards.lib}.analysis.qout',
         qerrfile=lambda wildcards: OUTDIR / f'logs/{wildcards.lib}.analysis.qerr',
@@ -120,8 +122,8 @@ rule analyze_one:
         8
     shell:
         "mbarq analyze -i {input} -o {params.out_dir} -s {params.sample_data} "
-        "-c {params.control_file} --baseline d0 -n {params.name} "
-        "--treatment_column day -g Name --norm_method {params.norm_method} --filter_low_counts "
+        "-c {params.control_file} --baseline {params.baseline} -n {params.name} "
+        "--treatment_column {params.treatment_col} -g Name --norm_method {params.norm_method} --filter_low_counts "
         " &> {log.log}"
 
 
