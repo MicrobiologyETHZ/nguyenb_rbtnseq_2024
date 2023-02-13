@@ -9,7 +9,7 @@ nguyen:
         filtered: nguyen_2020/library_11_1_l50.annotated.csv
     countsFile: nguyen_2020/nguyen_2020_l50_mbarq_merged_counts.csv
     resultsFile: nguyen_2020/results/nguyen_2020_l50_mbarq_merged_counts_rra_results_locus_tag.csv
-    resultsFileName: nguyen_2020/results/nguyen_2020_l50_mbarq_merged_counts_rra_results.csv
+    #resultsFileName: nguyen_2020/results/nguyen_2020_l50_mbarq_merged_counts_rra_results.csv
     sampleDataFile: nguyen_2020/nguyen_2020_sample_data.csv
     publishedResultsFile: nguyen_2020/nguyen_2020_results.csv
     publishedPhenotypesFile: nguyen_2020/nguyen_2020_inframe_mut_phenotypes.csv
