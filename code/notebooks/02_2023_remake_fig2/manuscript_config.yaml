@@ -8,7 +8,7 @@ nguyen:
         unfiltered: library_11_1_l50.map.csv #nguyen_2020/library_11_1_clean_R1.map.annotated.csv
         filtered: library_11_1_l50.annotated.csv #nguyen_2020/library_11_1_l50.annotated.csv
     countsFile: nguyen_2020_l50_mbarq_merged_counts.csv #nguyen_2020/nguyen_2020_l50_mbarq_merged_counts.csv
-    resultsFile: results/nguyen_2020_l50_mbarq_merged_counts_rra_results.csv #nguyen_2020/results/nguyen_2020_l50_mbarq_merged_counts_rra_results_locus_tag.csv
+    resultsFile: 03_03_results_filtered/nguyen_2020_l50_mbarq_merged_counts_rra_results.csv #nguyen_2020/results/nguyen_2020_l50_mbarq_merged_counts_rra_results_locus_tag.csv
     #resultsFileName: nguyen_2020/results/nguyen_2020_l50_mbarq_merged_counts_rra_results.csv
     sampleDataFile: nguyen_2020_sample_data.csv #nguyen_2020/nguyen_2020_sample_data.csv
     publishedResultsFile: /nfs/cds-peta/exports/biol_micro_cds_gr_sunagawa/scratch/ansintsova/Projects_NCCR/hardt/nguyenb/tnseq/scratch/manuscript_data/nguyen_2020/nguyen_2020_results.csv
