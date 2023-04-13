@@ -25,6 +25,27 @@ plt.rcParams['legend.fontsize'] = 14
 pd.set_option('display.float_format', lambda x: '{:,.4f}'.format(x))
 
 
+config_file = "manuscript_config.yaml"
+with open(config_file) as file:
+    # The FullLoader parameter handles the conversion from YAML
+    # scalar values to Python the dictionary format
+    configs = yaml.load(file, Loader=yaml.FullLoader)
+    
+root = Path(configs['root'])
+scratchDir = Path(configs['scratchDir'])
+figuresDir = Path(configs['figuresDir'])
+
+alphabetClrs = px.colors.qualitative.Alphabet
+clrs = ["#f7ba65", "#bf4713", "#9c002f", "#d73d00", "#008080", "#004c4c"]
+colors = {'grey': alphabetClrs[8], 
+        'light_yellow': clrs[0],
+        'darko': clrs[1],
+        'maroon':clrs[2],
+        'brighto': clrs[3],
+        'teal':clrs[4],
+        'darkteal':clrs[5]
+       }
+
 sushi_colors = {'red': '#C0504D',
              'orange': '#F79646',
              'medSea': '#4BACC6', 
@@ -33,5 +54,4 @@ sushi_colors = {'red': '#C0504D',
              'lgreen': '#92D050',
              'dblue': '#366092',
              'lblue': '#95B3D7'}
-
 today = date.today().strftime("%d-%m-%y")

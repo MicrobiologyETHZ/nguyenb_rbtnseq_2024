@@ -1,40 +1,34 @@
-root:
-  local: /nfs/cds-peta/exports/biol_micro_cds_gr_sunagawa/scratch/lifeer/nguyenb_tnseq/code/notebooks/02_2023_remake_fig2
-  server: /nfs/cds-peta/exports/biol_micro_cds_gr_sunagawa/scratch/lifeer/14_02_23_rerunning_mbarq/data/
-
+root: /nfs/cds-peta/exports/biol_micro_cds_gr_sunagawa/scratch/lifeer/
 
 nguyen:
     mapFile:
-        unfiltered: library_11_1_l50.map.csv #nguyen_2020/library_11_1_clean_R1.map.annotated.csv
-        filtered: library_11_1_l50.annotated.csv #nguyen_2020/library_11_1_l50.annotated.csv
-    countsFile: nguyen_2020_l50_mbarq_merged_counts.csv #nguyen_2020/nguyen_2020_l50_mbarq_merged_counts.csv
-    resultsFile: 03_03_results_filtered/nguyen_2020_l50_mbarq_merged_counts_rra_results.csv #nguyen_2020/results/nguyen_2020_l50_mbarq_merged_counts_rra_results_locus_tag.csv
-    #resultsFileName: nguyen_2020/results/nguyen_2020_l50_mbarq_merged_counts_rra_results.csv
-    sampleDataFile: nguyen_2020_sample_data.csv #nguyen_2020/nguyen_2020_sample_data.csv
+        unfiltered: 
+        filtered: 14_02_23_rerunning_mbarq/data/library_11_1_l50.annotated.csv 
+    countsFile: 14_02_23_rerunning_mbarq/data/nguyen_2020_l50_mbarq_merged_counts.csv
+    resultsFile: 14_02_23_rerunning_mbarq/data/03_03_results_filtered/nguyen_2020_l50_mbarq_merged_counts_rra_results.csv 
+    sampleDataFile: 14_02_23_rerunning_mbarq/data/nguyen_2020_sample_data.csv
     publishedResultsFile: /nfs/cds-peta/exports/biol_micro_cds_gr_sunagawa/scratch/ansintsova/Projects_NCCR/hardt/nguyenb/tnseq/scratch/manuscript_data/nguyen_2020/nguyen_2020_results.csv
     publishedPhenotypesFile: /nfs/cds-peta/exports/biol_micro_cds_gr_sunagawa/scratch/ansintsova/Projects_NCCR/hardt/nguyenb/tnseq/scratch/manuscript_data/nguyen_2020/nguyen_2020_inframe_mut_phenotypes.csv
     
 wetmore:
     mapFile:
-        unfiltered: wetmore_2015/TnSeq_SB2B_ML5_l0_old_locus_tag.annotated.csv
-        filtered: wetmore_2015/TnSeq_SB2B_ML5_l5_old_locus_tag.annotated.csv
+        unfiltered: 16_02_2023_rerunning_mbarq/TnSeq_SB2B_ML5_l0.annotated.csv
+        filtered: 16_02_2023_rerunning_mbarq/TnSeq_SB2B_ML5_l5.annotated.csv
         
-    countsFile: wetmore_2015/counts_1/SB2B_mbarq_merged_counts.csv
-    resultsFile: wetmore_2015/results_1/Set1_rra_results.csv
-    sampleDataFile: wetmore_2015/SB2B_metadata_carbon_source_set1.csv
-    publishedCountsFile: wetmore_2015/SB_count_table.poolcount
-    publishedResultsFile: wetmore_2015/sb2b_ml5.gene_fitness.tab
-    publishedStatsFile: wetmore_2015/sb2b_t_stat.tab
+    countsFile: 16_02_2023_rerunning_mbarq/counts/wetmore_2015_l5_mbarq_merged_counts.csv
+    resultsFile: 16_02_2023_rerunning_mbarq/results/Set1_rra_results.csv
+    sampleDataFile: 16_02_2023_rerunning_mbarq/data/SB2B_metadata_carbon_source_set1.csv
+    publishedCountsFile: /nfs/cds-peta/exports/biol_micro_cds_gr_sunagawa/scratch/ansintsova/Projects_NCCR/hardt/nguyenb/tnseq/scratch/manuscript_data/wetmore_2015/SB_count_table.poolcount
+    publishedResultsFile: /nfs/cds-peta/exports/biol_micro_cds_gr_sunagawa/scratch/ansintsova/Projects_NCCR/hardt/nguyenb/tnseq/scratch/manuscript_data/wetmore_2015/sb2b_ml5.gene_fitness.tab
+    publishedStatsFile: /nfs/cds-peta/exports/biol_micro_cds_gr_sunagawa/scratch/ansintsova/Projects_NCCR/hardt/nguyenb/tnseq/scratch/manuscript_data/wetmore_2015/sb2b_t_stat.tab
     
 jasinska:
-    sampleDataFile: jasinska_2020/SraRunTable_Jasinska.txt
-    noDrugsFile: jasinska_2020/counts/jasinska_2020_no_drug_mbarq_merged_counts.csv
-    lowTMPFile: jasinska_2020/counts/jasinska_2020_low_tmp_mbarq_merged_counts.csv
+    root: /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/scratch/manuscript_data/jasinska_2020
+    sampleDataFile: SraRunTable_Jasinska.txt
+    noDrugsFile: 11-04-23_jasinska-no-drug_mbarq_merged_counts.csv
+    publishedFrequency: Jasinska_barcode_frequency.csv
+    lowTMPFile: counts/jasinska_2020_low_tmp_mbarq_merged_counts.csv
   
-scratchDir:
-  local: /Users/ansintsova/git_repos/nguyenb_tnseq/data/08_22_manuscript/scratch
-  server: /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/scratch/manuscript_data/tmp
+scratchDir: /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/scratch/manuscript_data/tmp
 
-figuresDir:
-  local:
-  server: /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/scratch/manuscript_data/figures
+figuresDir: /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/scratch/manuscript_data/figures
