@@ -123,7 +123,7 @@ rule analyze_one:
     shell:
         "mbarq analyze -i {input} -o {params.out_dir} -s {params.sample_data} "
         "-c {params.control_file} --baseline {params.baseline} -n {params.name} "
-        "--treatment_column {params.treatment_col} -g Name --norm_method {params.norm_method} --filter_low_counts "
+        "--treatment_column {params.treatment_col} -g Name --norm_method {params.norm_method} --filter_low_counts 100"
         " &> {log.log}"
 
 
