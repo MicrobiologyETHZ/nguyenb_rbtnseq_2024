@@ -1,0 +1,24 @@
+default: 
+  root: /nfs/cds-peta/exports/biol_micro_cds_gr_sunagawa/scratch/ansintsova/Projects_NCCR/hardt/nguyenb/tnseq/scratch/03_23_transcriptomics/
+  sample_data_file: rnaseq_metatdata.csv
+  gff_file: ref/07-07-23_OLIGO-ASF-LCM-SL1344_edited.gff
+  deseq_count_file: analysis/annotated-featurecounts-for-deseq.csv
+  featurecounts_dir: bowtie_featurecounts
+  salmon_dir: salmon_metat
+  sushi_dir: sushibam
+  output_dir: analysis
+  motus_dir: motus
+  oligo_fc_raw: analysis/oligo-fc-raw.csv
+  oligo_i48_fc_raw: analysis/oligo_i48_fc_raw.csv
+  oligo_yl27_fc_raw: analysis/oligo_yl27_fc_raw.csv
+  synth_dir: modeling
+
+
+  
+
+
+
+
+
+
+
