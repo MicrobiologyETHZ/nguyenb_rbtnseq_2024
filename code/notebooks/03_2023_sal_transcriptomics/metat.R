@@ -5,18 +5,23 @@ source("03_2023_sal_transcriptomics/deseq_fx.R")
 library(config)
 library(data.table)
 
-# Testing synthetic data
 configs <- config::get(file="03_2023_sal_transcriptomics/config.yaml")
 root <- configs$root
+out_dir <- file.path(root, configs$output_dir)
+
+lfct <- 0.0
+alpha <- 0.01
+date <- Sys.Date()
+# Testing synthetic data
 synth_dir <- file.path(root, configs$synth_dir)
 synth_sample_data_file <- file.path(synth_dir, "true-exp-meta.csv")
 synth_count_file <- file.path(synth_dir, 'true-exp-counts.csv')
 conditions <- "Phenotype"
 out_dir <- file.path(synth_dir)
-lfct <- 0.0
-alpha <- 0.01
-date <- Sys.Date()
+
 prefix <- paste0(date, "_true-exp-deseq-")
+pattern1 <- '1'
+pattern2 <- '0'
 
 # First running DESeq2 on the full count data without normalisation. Count data had +1 added to it. Otherwise DESeq2 fails (due to low coverage)
 deseq_output <- run_deseq_on_featcnts(sample_data_file, count_file, conditions,
@@ -24,8 +29,7 @@ deseq_output <- run_deseq_on_featcnts(sample_data_file, count_file, conditions,
 
 dds <- deseq_output$dds
 sd <- deseq_output$sample_data
-pattern1 <- '1'
-pattern2 <- '0'
+
 get_all_results(sd, pattern1, pattern2, dds, out_dir, lfct, alpha, prefix)
 
 
@@ -53,8 +57,9 @@ for (i in seq_along(bugs)){
     keep <- rowSums(counts(dds)) >= 10
     dds <- dds[keep, ]
     dds <- DESeq(dds, quiet = FALSE)
-    df_list[[i]] <- results(dds, contrast = c("group", pattern1, pattern2), alpha = alpha, lfcThreshold = lfct) %>% as.data.frame() %>% mutate(bug=bugs[[i]])
-    
+    df_list[[i]] <- results(dds, contrast = c("group", pattern1, pattern2), alpha = alpha, lfcThreshold = lfct) %>% 
+                        as.data.frame() %>% mutate(bug=bugs[[i]]) %>%
+                      rownames_to_column("ID")
 }
 
 final_result <- rbindlist(df_list, fill=TRUE)
@@ -82,15 +87,17 @@ get_all_results(colData(dds), pattern1, pattern2, dds, out_dir, lfct, alpha, pre
 pattern1 <- "Oligo_PBS"
 pattern2 <- "LCM_PBS_D1"
 get_all_results(colData(dds), pattern1, pattern2, dds, out_dir, lfct, alpha, prefix)
+write.csv(deseq_output$norm_counts, file.path(out_dir, paste0(prefix, 'norm_cnts.csv')))
 
 
+
+
+# Need to analyze OLIGO and LCM experiments on their own
 oligo <- sample_data %>% filter(Mouse == 'Oligo')
-
 oligo_counts <- count_data %>% select(c(c('ID', 'genome'), oligo$sample_id))
 oligo_counts <- oligo_counts %>% filter(genome != "ASF457")
 conditions <- 'Treatment'
 prefix <- paste0(date, "_oligo-alone-within-taxon-")
-
 oligo_output <- deseq_on_metat_taxon(oligo_counts, oligo, conditions, "ID", "sample_id", "genome")
 dds <- oligo_output$dds
 pattern1 <- "LPS"
@@ -98,6 +105,20 @@ pattern2 <- "PBS"
 get_all_results(colData(dds), pattern1, pattern2, dds, out_dir, lfct, alpha, prefix)
 
 write.csv(oligo_output$norm_counts, file.path(out_dir, paste0(prefix, 'norm_cnts.csv')))
+
+# Now LCM
+lcm <- sample_data %>% filter(Mouse == 'LCM')
+lcm_counts <- count_data %>% select(c(c('ID', 'genome'), lcm$sample_id))
+lcm_counts <- lcm_counts %>% filter(genome != "ASF457")
+conditions <- 'Treatment'
+prefix <- paste0(date, "_lcm-alone-within-taxon-")
+lcm_output <- deseq_on_metat_taxon(lcm_counts, lcm, conditions, "ID", "sample_id", "genome")
+dds <- lcm_output$dds
+pattern1 <- "^D"
+pattern2 <- "PBS_D1"
+get_all_results(colData(dds), pattern1, pattern2, dds, out_dir, lfct, alpha, prefix)
+
+write.csv(lcm_output$norm_counts, file.path(out_dir, paste0(prefix, 'norm_cnts.csv')))
 
 
 

@@ -1,0 +1,6 @@
+analysis_dir: /nfs/cds-peta/exports/biol_micro_cds_gr_sunagawa/scratch/ansintsova/Projects_NCCR/hardt/nguyenb/tnseq/scratch/final_counts/analysis
+map_dir: /nfs/cds-peta/exports/biol_micro_cds_gr_sunagawa/scratch/ansintsova/Projects_NCCR/hardt/nguyenb/tnseq/scratch/final_maps
+sample_data_file: /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/scratch/10_22/sample_data/14-04-22-sample-data.csv
+counts_dir: /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/scratch/final_counts/counts
+out_dir: /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/scratch/final_counts/figures
+gff_file: /nfs/nas22/fs2202/biol_micro_sunagawa/Projects/PAN/REFERENCE_GENOMES_PAN/data/raw/GCA_000210855/GCA_000210855.2/GCA_000210855.2.gff3

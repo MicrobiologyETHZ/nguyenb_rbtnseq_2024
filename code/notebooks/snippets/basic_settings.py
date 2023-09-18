@@ -7,6 +7,10 @@ import seaborn as sns
 import sys
 import plotly.express as px
 import yaml
+import pyranges as pr
+import requests
+from time import sleep
+import json
 
 sns.set_context("notebook", font_scale=1.1)
 pd.set_option("display.max_columns", 100)
@@ -20,7 +24,4 @@ plt.rcParams['font.size'] = 16
 plt.rcParams['lines.linewidth'] = 2.0
 plt.rcParams['lines.markersize'] = 8
 plt.rcParams['legend.fontsize'] = 14
-plt.rcParams['text.usetex'] = False  # True activates latex output in fonts!
-plt.rcParams['font.family'] = "serif"
-plt.rcParams['font.serif'] = "cm"
 pd.set_option('display.float_format', lambda x: '{:,.2f}'.format(x))

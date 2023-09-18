@@ -131,7 +131,6 @@ rule analyze_unenriched:
     input: [OUTDIR/f'analysis/{lib}_unenriched_inoculum_rra_results.csv' for lib in libraries]
 
 
-
 rule count_for_manuscript:
     input: [DATADIR/f'counts/{sample}_mbarq_counts.csv' for sample in SAMPLES]
 

@@ -103,7 +103,7 @@ def merge(config, local, dry):
 @click.option('--local', is_flag=True, help="Run on local machine")
 @click.option('--dry', is_flag=True, help="Show commands without running them")
 def analyze(config, local, dry):
-    click.echo("Running RBSeq Analysis Pipeline: counting and merging samples data")
+    click.echo("Running RBSeq Analysis Pipeline: data analysis")
     click.echo(f"Config file: {config}")
     click.echo("Running {}".format('locally' if local else ('dry' if dry else 'on cluster')))
     smk_file = "Snakefile"
