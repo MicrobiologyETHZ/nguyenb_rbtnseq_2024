@@ -82,6 +82,23 @@ genome_map = {'CP015399.2': 'YL32',
                   'NZ_CP097562.1': 'ASF457'
                   }
 
+# mOTUs (v3) map
+
+motus_to_strains = {'Bacteroides caecimuris [ref_mOTU_v31_03476]': 'I48', 
+                    'Muribaculum intestinale [ref_mOTU_v31_10099]': 'YL27',
+                    'Blautia sp. YL58 [ref_mOTU_v31_02153]': 'YL58',
+                    'Akkermansia muciniphila [ref_mOTU_v31_03591]':'YL44',
+                    'Hungateiclostridiaceae bacterium KB18 [ref_mOTU_v31_10098]':'KB18',
+                    'Flavonifractor plautii [ref_mOTU_v31_05238]': 'YL31',
+                    '[Clostridium] clostridioforme/bolteae [ref_mOTU_v31_03442]': 'YL32',
+                    'Enterococcus faecalis [ref_mOTU_v31_00318]': 'KB1',
+                    'Salmonella enterica [ref_mOTU_v31_00099]': 'SL1344',
+                    'Parabacteroides goldsteinii [ref_mOTU_v31_01679]': 'ASF519',
+                    'Lactobacillus reuteri [ref_mOTU_v31_04085]': 'I49',
+                    }
+
+
+
 # NCBI map
 
 ncbi_taxid_map= {'I48': '1796613', 'YL32': '1834196', 'YL58':'1796616', 'YL27': '1796646'}

@@ -1,15 +1,14 @@
-root:
-  local: /Users/ansintsova/polybox/Hardt/nguyenb/04_22_results
-  server: /nfs/cds-peta/exports/biol_micro_cds_gr_sunagawa/scratch/ansintsova/Projects_NCCR/hardt/nguyenb/tnseq/scratch/04_22
-mapDir: maps
-countDir: counts
-resultDir: results
-metMapsDir: met_maps
-libraryCountsDir: counts_by_library
-sampleDataOriginal: complete_metadata.tsv
-sampleData: 14-04-22-sample-data.csv
-controlData: controls.txt
-scratchDir:
-  local: /Users/ansintsova/git_repos/nguyenb_tnseq/data/scratch
-  server: /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/scratch/04_22/tmp
+
+root: /nfs/cds-peta/exports/biol_micro_cds_gr_sunagawa/scratch/ansintsova/Projects_NCCR/hardt/nguyenb/tnseq/scratch/nguyen_2024
+analysis_dir: results
+inoculum_dir: inoculum_analysis
+map_dir: maps
+sample_data_file: nguyen-2024-sample-data.csv
+counts_dir: /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/scratch/final_counts/counts
+out_dir: /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/scratch/final_counts/figures
+gff_file: GCA_000210855.2.gff3.gz
+mice_file: mice_per_library.csv.gz
+string_enrichment_file: STRG0A50HSX.protein.enrichment.terms.v12.0.txt.gz
+published_file: /nfs/cds-peta/exports/biol_micro_cds_gr_sunagawa/scratch/ansintsova/Projects_NCCR/hardt/nguyenb/tnseq/scratch/manuscript_data/nguyen_2020/nguyen_2020_results.csv
+
 
