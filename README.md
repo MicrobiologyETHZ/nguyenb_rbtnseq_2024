@@ -4,7 +4,6 @@
 
 - We have set up small snakemake pipeline to use for data analysis with [mBARq](https://github.com/MicrobiologyETHZ/mbarq).
 
-### Mapping of transposon libraries to the SL1344 genome
 
 1. Pre-process Illumina short read data using [standard workflow](https://methods-in-microbiomics.readthedocs.io/en/latest/preprocessing/preprocessing.html).
 
@@ -29,7 +28,7 @@ rbseq merge -c rbseq_workflow/configs/03-08-23-counting-config.yaml
 rbseq analyze -c rbseq_workflow/configs/03-08-23-counting-config.yaml
 
 ```
-5. Explore. All of the data generated at each step of the worklow is available for download and further exploration through [mBARq app](https://mbarq.microbiomics.io/)
+5. Explore. All of the data generated at each step of the worklow is available for download and further exploration through [mBARq app](https://mbarq.microbiomics.io/).
 
 
 ## Data Analysis
