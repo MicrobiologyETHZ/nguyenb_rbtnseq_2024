@@ -1,74 +1,39 @@
-# Salmonella SL1344 TNSeq Analysis Pipeline
+# Salmonella Typhimurium screen identifies shifts in mixed acid fermentation during gut colonization
 
-1. Set up small snakemake pipeline to use for data analysis with [tnseq2 package](https://github.com/MicrobiologyETHZ/nccr_tnseq2).
+## Analysis with mBARq
 
-### Mapping of transposon libraries to the SL1344 genomes
+- We have set up small snakemake pipeline to use for data analysis with [mBARq](https://github.com/MicrobiologyETHZ/mbarq).
 
-1. Pre-process Illumina short read data using standard workflow
+### Mapping of transposon libraries to the SL1344 genome
 
-    - Create `tnseq-mapping_sample.csv`
-    - Preprocess using standard pipeline
+1. Pre-process Illumina short read data using [standard workflow](https://methods-in-microbiomics.readthedocs.io/en/latest/preprocessing/preprocessing.html).
+
     
-```bash
-cd code/tnseq_snakemake_workflow
-# Creates sample sheet for all the libraries to be mapped
-python preprocessing/scripts/fastq_dir_to_samplesheet.py -c configs/18-08-21-mapping-config.yaml
-# Preprocess (still troubleshooting snakemake pipeline, issues with qout/qerr because of import of workflow)
-snakemake --use-conda -k --cluster "qsub -S /bin/bash -V -cwd -o preprocess.qoutfile -e preprocess.q
-errfile -pe smp 4 -l h_vmem=8000M" --configfile /nfs/nas22/fs2202/biol_micro_bioinf_nccr
-/hardt/nguyenb/tnseq/code/tnseq_snakemake_workflow/configs/18-08-21-mapping-config.yaml
--p -j 1 --max-jobs-per-second 1 preprocess_preprocess
-
-```
-
-2. Map libraries to reference genomes
+2. Map libraries to reference genome using [mbarq map](https://mbarq.readthedocs.io/en/latest/mapping.html) command. 
 
 ```bash
-snakemake --use-conda -k --cluster "DIR=\$(dirname {params.qoutfile}); mkdir -p \"\${{DIR}}\"; qsub -S /bin/bash -V -cwd -o {params.qoutfile} -e {params.qerrfile} -pe smp {threads} -l h_vmem={params.mem}M" --configfile /nfs/nas22/fs2202/biol_micro_bioinf_nccr/hardt/nguyenb/tnseq/code/tnseq_snakemake_workflow/configs/18-08-21-mapping-config.yaml -p -j 10 --max-jobs-per-second 1 map
+rbseq map -c rbseq_workflow/configs/28-06-23-mapping-config.yaml
 
 ```
 
+3. Count the barcodes across samples using [mbarq count](https://mbarq.readthedocs.io/en/latest/counting.html) command.
 
+```
+rbseq merge -c rbseq_workflow/configs/03-08-23-counting-config.yaml 
 
-3. (Demultiplex) and Quantify barcodes 
-
-
+```
     
- 
-    
-    
-    
--  tnseq2 command for mapping:
+4. Perform differential abundance analysis using [mbarq analyze](https://mbarq.readthedocs.io/en/latest/analysis.html) command.  
 
 ```
-tnseq2 maplib ...
-```
-- Conda environment used for mapping is in `envs/map.yaml`
-- Snakemake command to run this on samples specified in `samples.txt`
+rbseq analyze -c rbseq_workflow/configs/03-08-23-counting-config.yaml
 
 ```
-snakemake --configfile ...
-```
-
-### General Steps for Quantifying Barcodes
-
-1. Demultiplex
-2. Quantify
-3. Run merge_counts.py 
-4. Calculate and graph R for all the controls
-5. Filter count data based on read distribution in the inoculum
-6. Calculate fitness using DESeq2 (for each barcode)
-7. Compare fitness of each gene to that of wt using z-scores
-8. Visualize the results
-
-Final output table should contain for each gene:
+5. Explore. All of the data generated at each step of the worklow is available for download and further exploration through [mBARq app](https://mbarq.microbiomics.io/)
 
 
-## Results
-Two tables:
-###Fitness table
+## Data Analysis
 
-Gene ShortName, # of barcodes, mean fitness, sd fitness, num of samples used to calculate fitness 
-
-## Z-score table
-z-score, padj, CI for every day. 
+- All of the code used to generate figures for the paper can be found in `code/notebooks/08-23-rbtnseq-analysis.ipynb`.
+- The data needed to run the notebook is in `code/notebooks/nguyen.tar.gz` archive. Run `tar -xzvf code/notebooks/nguyen.tar.gz` to extract the archive and make sure the `root` in `code/notebooks/nguyenb_config.yaml` is pointing to the extracted folder.
+- Packages required to run the notebook are listed in `code/notebooks/env.yaml`. 
